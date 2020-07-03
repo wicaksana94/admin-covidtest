@@ -1,433 +1,374 @@
 import React, { Component } from 'react'
-import { ProgressBar } from 'react-bootstrap';
+import {Form, Row, Col} from 'react-bootstrap';
+import axios from '../axios/API'
+import Swal from 'sweetalert2'
 
 export class Registrant extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            list_data:[]
+        };
+
+        this.handlerOnChange = this.handlerOnChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    getRegistrant() {
+        axios.request({
+            method: 'GET',
+            url: '/getRegistrant',
+            responseType: 'json'
+        }).then(response => this.setState({
+            list_data:response.data
+        }))
+    }
+
+    componentDidMount() {
+        this.getRegistrant()
+    }
+
+    handlerOnChange=(e)=>{
+        this.setState({
+            [e.target.name] : e.target.value
+        })
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        const data = new FormData(event.target);
+
+        axios({
+            method: 'post',
+            url: '/postFilterRegistrantData',
+            data: data,
+        })
+            .then(function (response) {
+                // replace existing tbody with filtered tbody
+                var existingTbody = document.getElementById("registrant-tbody");
+                var newTbody = document.createElement("tbody");
+                newTbody.setAttribute("id", "registrant-tbody");
+                existingTbody.parentNode.replaceChild(newTbody, existingTbody)
+
+                response.data.map(function(list_data){
+                    let badgeClass
+                    let status
+                    if(list_data.registrant_status==="0") {
+                        badgeClass = "badge badge-danger";
+                        status = "Belum";
+                    } else {
+                        badgeClass = "badge badge-success";
+                        status = "Sudah";
+                    }
+
+                    async function doCreate_tr() {
+                        var tr = document.createElement("tr");
+                        tr.setAttribute("id", "tr_"+list_data.id);
+                        var existingTbody = document.getElementById("registrant-tbody");
+                        existingTbody.appendChild(tr);
+                    }
+
+                    async function doCreate_td_id() {
+                        var td_id = document.createElement("td");
+                        var td_id_node = document.createTextNode(list_data.id);
+                        td_id.appendChild(td_id_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_id);
+                    }
+
+                    async function doCreate_td_test_date() {
+                        var td_test_date = document.createElement("td");
+                        var test_date_node = document.createTextNode(list_data.test_date);
+                        td_test_date.appendChild(test_date_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_test_date);
+                    }
+
+                    async function doCreate_td_name() {
+                        var td_name = document.createElement("td");
+                        var name_node = document.createTextNode(list_data.name);
+                        td_name.appendChild(name_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_name);
+                    }
+
+                    async function doCreate_td_email() {
+                        var td_email = document.createElement("td");
+                        var email_node = document.createTextNode(list_data.email);
+                        td_email.appendChild(email_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_email);
+                    }
+
+                    async function doCreate_td_phone() {
+                        var td_phone = document.createElement("td");
+                        var phone_node = document.createTextNode(list_data.phone);
+                        td_phone.appendChild(phone_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_phone);
+                    }
+
+                    async function doCreate_td_test_covid() {
+                        var td_test_covid = document.createElement("td");
+                        var test_covid_node = document.createTextNode(list_data.test_covid);
+                        td_test_covid.appendChild(test_covid_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_test_covid);
+                    }
+
+                    async function doCreate_td_publish_fare() {
+                        var td_publish_fare = document.createElement("td");
+                        var publish_fare_node = document.createTextNode(list_data.publish_fare);
+                        td_publish_fare.appendChild(publish_fare_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_publish_fare);
+                    }
+
+                    async function doCreate_td_status() {
+                        // make badge label
+                        var label_status = document.createElement("label");
+                        label_status.setAttribute("class", badgeClass);
+                        label_status.setAttribute("id", "status_"+list_data.id);
+                        label_status.onclick = function () {
+                            changeStatus(list_data.id)
+                        };
+
+                        // change cursor to pointer when hover
+                        label_status.style.cursor = "pointer";
+
+                        // add status text to badge label
+                        var status_node = document.createTextNode(status);
+                        label_status.appendChild(status_node);
+
+                        // make td status
+                        var td_status = document.createElement("td");
+                        td_status.appendChild(label_status);
+                        var tr = document.getElementById("tr_"+list_data.id);
+
+                        tr.appendChild(td_status);
+                    }
+
+                    function changeStatus(id){
+                        console.log(id)
+                        Swal.fire({
+                            title: 'Apakah Anda yakin mengubah status?',
+                            // text: "helo "+list_data.id,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                        }).then(result=> {
+                            if (result.value) {
+                                let url = '/updateRegistrantStatus/'+id
+                                axios
+                                    .put(url)
+                                    .then(res => {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil',
+                                            text: 'Status berhasil diubah.'
+                                        }).then(response => {
+                                            if (res.data.status===1 && res.data.new_status==="Belum") {
+                                                let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                existingStatusBanner.className = "badge badge-danger";
+                                                existingStatusBanner.innerHTML = 'Belum';
+                                            } else if (res.data.status===1 && res.data.new_status==="Sudah") {
+                                                let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                existingStatusBanner.className = "badge badge-success";
+                                                existingStatusBanner.innerHTML = 'Sudah';
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'Terjadi eror, harap coba beberapa saat lagi.'
+                                                })
+                                            }
+                                        })
+
+                                    })
+                                    .catch(err => {
+                                        // console.log(err);
+                                    });
+                            }
+                        })
+                    }
+
+                    // fill the table with new data from filter
+                    async function populateFilteredData(){
+                        await doCreate_tr()
+                        await doCreate_td_id()
+                        await doCreate_td_test_date()
+                        await doCreate_td_name()
+                        await doCreate_td_email()
+                        await doCreate_td_phone()
+                        await doCreate_td_test_covid()
+                        await doCreate_td_publish_fare()
+                        await doCreate_td_status()
+                    }
+
+                    return populateFilteredData()
+                });
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
     render() {
+        let registrantData = this.state.list_data.map(function(list_data, index){
+            let badgeClass
+            let status
+            function changeStatus(id){
+                // console.log(id)
+                Swal.fire({
+                    title: 'Apakah Anda yakin mengubah status?',
+                    // text: "helo "+list_data.id,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak'
+                }).then(async result=> {
+                    // console.log(result)
+                    if (result.value) {
+                        let url = '/updateRegistrantStatus/'+id
+                        axios
+                            .put(url)
+                            .then(res => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Status berhasil diubah.'
+                                }).then(response => {
+                                    if (res.data.status===1 && res.data.new_status==="Belum") {
+                                        let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                        existingStatusBanner.className = "badge badge-danger";
+                                        existingStatusBanner.innerHTML = 'Belum';
+                                    } else if (res.data.status===1 && res.data.new_status==="Sudah") {
+                                        let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                        existingStatusBanner.className = "badge badge-success";
+                                        existingStatusBanner.innerHTML = 'Sudah';
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'Terjadi eror, harap coba beberapa saat lagi.'
+                                        })
+                                    }
+                                })
+
+                            })
+                            .catch(err => {
+                                // console.log(err);
+                            });
+                    }
+                })
+            }
+            if(list_data.registrant_status==="0") {
+                badgeClass = "badge badge-danger";
+                status = "Belum";
+            } else {
+                badgeClass = "badge badge-success";
+                status = "Sudah";
+            }
+            return (
+                <tr key={list_data.id}>
+                    <td>{list_data.id}</td>
+                    <td>{list_data.test_date}</td>
+                    <td>{list_data.name}</td>
+                    <td>{list_data.email}</td>
+                    <td>{list_data.phone}</td>
+                    <td>{list_data.test_covid}</td>
+                    <td>{list_data.publish_fare}</td>
+                    <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
+                </tr>
+            );
+        })
+
         return (
             <div>
                 <div className="page-header">
                     <h3 className="page-title"> Registrant Tables </h3>
                     <nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
-                            <li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>
-                            <li className="breadcrumb-item active" aria-current="page">Basic tables</li>
+                            {/*<li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>*/}
+                            {/*<li className="breadcrumb-item active" aria-current="page">Basic tables</li>*/}
                         </ol>
                     </nav>
                 </div>
                 <div className="row">
-                    <div className="col-lg-6 grid-margin stretch-card">
+                    <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                <h4 className="card-title">Basic Table</h4>
-                                <p className="card-description"> Add className <code>.table</code>
-                                </p>
+                                <h4 className="card-title">Daftar Peserta Tes Covid</h4>
+                                {/*<p className="card-description"> Add className <code>.table</code>*/}
+                                {/*</p>*/}
+                                <Form className="row" onSubmit={this.handleSubmit}>
+                                    <div className="col-lg-6">
+                                        <Form.Group as={Row} controlId="formPlaintextTanggal">
+                                            <Form.Label column sm="2">
+                                                Tanggal
+                                            </Form.Label>
+                                            <Col sm="10" md="4" lg="4">
+                                                <Form.Control type="date" placeholder="Tanggal Rapid" name="test_date" onChange={this.handlerOnChange} />
+                                            </Col>
+                                        </Form.Group>
+
+                                        <Form.Group as={Row} controlId="formPlaintextNama">
+                                            <Form.Label column sm="2">
+                                                Nama
+                                            </Form.Label>
+                                            <Col sm="10">
+                                                <Form.Control type="text" placeholder="Nama" name="name" value={this.state.value} onChange={this.handlerOnChange} />
+                                            </Col>
+                                        </Form.Group>
+                                    </div>
+                                    <div className="col-lg-6">
+                                        <Form.Group as={Row} controlId="formPlaintextNoHP">
+                                            <Form.Label column sm="2">
+                                                No. HP
+                                            </Form.Label>
+                                            <Col sm="10">
+                                                <Form.Control type="phone" placeholder="No. HP" name="phone" onChange={this.handlerOnChange} />
+                                            </Col>
+                                        </Form.Group>
+
+                                        <Form.Group as={Row} controlId="formPlaintextEmail">
+                                            <Form.Label column sm="2">
+                                                Email
+                                            </Form.Label>
+                                            <Col sm="10">
+                                                <Form.Control type="email" placeholder="Email" name="email" onChange={this.handlerOnChange} />
+                                            </Col>
+                                        </Form.Group>
+
+                                        <Form.Group as={Row} controlId="formFilterButton">
+                                            <Col className="justify-content-end d-flex">
+                                                <button className="btn btn-lg btn-primary">Filter</button>
+                                            </Col>
+                                        </Form.Group>
+                                    </div>
+                                </Form>
                                 <div className="table-responsive">
                                     <table className="table">
                                         <thead>
                                         <tr>
-                                            <th>Profile</th>
-                                            <th>VatNo.</th>
-                                            <th>Created</th>
+                                            <th>ID</th>
+                                            <th>Tanggal</th>
+                                            <th>Nama</th>
+                                            <th>Email</th>
+                                            <th>No.HP</th>
+                                            <th>Jenis Test</th>
+                                            <th>Publish Fare</th>
                                             <th>Status</th>
                                         </tr>
                                         </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>Jacob</td>
-                                            <td>53275531</td>
-                                            <td>12 May 2017</td>
-                                            <td><label className="badge badge-danger">Pending</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Messsy</td>
-                                            <td>53275532</td>
-                                            <td>15 May 2017</td>
-                                            <td><label className="badge badge-warning">In progress</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>John</td>
-                                            <td>53275533</td>
-                                            <td>14 May 2017</td>
-                                            <td><label className="badge badge-info">Fixed</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Peter</td>
-                                            <td>53275534</td>
-                                            <td>16 May 2017</td>
-                                            <td><label className="badge badge-success">Completed</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Dave</td>
-                                            <td>53275535</td>
-                                            <td>20 May 2017</td>
-                                            <td><label className="badge badge-warning">In progress</label></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-6 grid-margin stretch-card">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Hoverable Table</h4>
-                                <p className="card-description"> Add className <code>.table-hover</code>
-                                </p>
-                                <div className="table-responsive">
-                                    <table className="table table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Product</th>
-                                            <th>Sale</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>Jacob</td>
-                                            <td>Photoshop</td>
-                                            <td className="text-danger"> 28.76% <i className="mdi mdi-arrow-down"></i></td>
-                                            <td><label className="badge badge-danger">Pending</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Messsy</td>
-                                            <td>Flash</td>
-                                            <td className="text-danger"> 21.06% <i className="mdi mdi-arrow-down"></i></td>
-                                            <td><label className="badge badge-warning">In progress</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>John</td>
-                                            <td>Premier</td>
-                                            <td className="text-danger"> 35.00% <i className="mdi mdi-arrow-down"></i></td>
-                                            <td><label className="badge badge-info">Fixed</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Peter</td>
-                                            <td>After effects</td>
-                                            <td className="text-success"> 82.00% <i className="mdi mdi-arrow-up"></i></td>
-                                            <td><label className="badge badge-success">Completed</label></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Dave</td>
-                                            <td>53275535</td>
-                                            <td className="text-success"> 98.05% <i className="mdi mdi-arrow-up"></i></td>
-                                            <td><label className="badge badge-warning">In progress</label></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-12 grid-margin stretch-card">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Striped Table</h4>
-                                <p className="card-description"> Add className <code>.table-striped</code>
-                                </p>
-                                <div className="table-responsive">
-                                    <table className="table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th> User </th>
-                                            <th> First name </th>
-                                            <th> Progress </th>
-                                            <th> Amount </th>
-                                            <th> Deadline </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face1.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> Herman Beck </td>
-                                            <td>
-                                                <ProgressBar variant="success" now={25} />
-                                            </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face2.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> Messsy Adam </td>
-                                            <td>
-                                                <ProgressBar variant="danger" now={75} />
-                                            </td>
-                                            <td> $245.30 </td>
-                                            <td> July 1, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face3.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> John Richards </td>
-                                            <td>
-                                                <ProgressBar variant="warning" now={90} />
-                                            </td>
-                                            <td> $138.00 </td>
-                                            <td> Apr 12, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face4.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> Peter Meggik </td>
-                                            <td>
-                                                <ProgressBar variant="primary" now={50} />
-                                            </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face5.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> Edward </td>
-                                            <td>
-                                                <ProgressBar variant="danger" now={60} />
-                                            </td>
-                                            <td> $ 160.25 </td>
-                                            <td> May 03, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face6.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> John Doe </td>
-                                            <td>
-                                                <ProgressBar variant="info" now={65} />
-                                            </td>
-                                            <td> $ 123.21 </td>
-                                            <td> April 05, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="py-1">
-                                                <img src={require("../../assets/images/faces/face7.jpg")} alt="user icon" />
-                                            </td>
-                                            <td> Henry Tom </td>
-                                            <td>
-                                                <ProgressBar variant="warning" now={20} />
-                                            </td>
-                                            <td> $ 150.00 </td>
-                                            <td> June 16, 2015 </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-12 grid-margin stretch-card">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Bordered table</h4>
-                                <p className="card-description"> Add className <code>.table-bordered</code>
-                                </p>
-                                <div className="table-responsive">
-                                    <table className="table table-bordered">
-                                        <thead>
-                                        <tr>
-                                            <th> # </th>
-                                            <th> First name </th>
-                                            <th> Progress </th>
-                                            <th> Amount </th>
-                                            <th> Deadline </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td> 1 </td>
-                                            <td> Herman Beck </td>
-                                            <td>
-                                                <ProgressBar variant="success" now={25} />
-                                            </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 2 </td>
-                                            <td> Messsy Adam </td>
-                                            <td>
-                                                <ProgressBar variant="danger" now={75} />
-                                            </td>
-                                            <td> $245.30 </td>
-                                            <td> July 1, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 3 </td>
-                                            <td> John Richards </td>
-                                            <td>
-                                                <ProgressBar variant="warning" now={90} />
-                                            </td>
-                                            <td> $138.00 </td>
-                                            <td> Apr 12, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 4 </td>
-                                            <td> Peter Meggik </td>
-                                            <td>
-                                                <ProgressBar variant="primary" now={50} />
-                                            </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 5 </td>
-                                            <td> Edward </td>
-                                            <td>
-                                                <ProgressBar variant="danger" now={35} />
-                                            </td>
-                                            <td> $ 160.25 </td>
-                                            <td> May 03, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 6 </td>
-                                            <td> John Doe </td>
-                                            <td>
-                                                <ProgressBar variant="info" now={65} />
-                                            </td>
-                                            <td> $ 123.21 </td>
-                                            <td> April 05, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 7 </td>
-                                            <td> Henry Tom </td>
-                                            <td>
-                                                <ProgressBar now={60} />
-                                                <ProgressBar variant="warning" now={20} />
-                                            </td>
-                                            <td> $ 150.00 </td>
-                                            <td> June 16, 2015 </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-12 grid-margin stretch-card">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Inverse table</h4>
-                                <p className="card-description"> Add className <code>.table-dark</code>
-                                </p>
-                                <div className="table-responsive">
-                                    <table className="table table-dark">
-                                        <thead>
-                                        <tr>
-                                            <th> # </th>
-                                            <th> First name </th>
-                                            <th> Amount </th>
-                                            <th> Deadline </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td> 1 </td>
-                                            <td> Herman Beck </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 2 </td>
-                                            <td> Messsy Adam </td>
-                                            <td> $245.30 </td>
-                                            <td> July 1, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 3 </td>
-                                            <td> John Richards </td>
-                                            <td> $138.00 </td>
-                                            <td> Apr 12, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 4 </td>
-                                            <td> Peter Meggik </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 5 </td>
-                                            <td> Edward </td>
-                                            <td> $ 160.25 </td>
-                                            <td> May 03, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 6 </td>
-                                            <td> John Doe </td>
-                                            <td> $ 123.21 </td>
-                                            <td> April 05, 2015 </td>
-                                        </tr>
-                                        <tr>
-                                            <td> 7 </td>
-                                            <td> Henry Tom </td>
-                                            <td> $ 150.00 </td>
-                                            <td> June 16, 2015 </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-lg-12 stretch-card">
-                        <div className="card">
-                            <div className="card-body">
-                                <h4 className="card-title">Table with contextual classNames</h4>
-                                <p className="card-description"> Add className <code>.table-&#123;color&#125;</code>
-                                </p>
-                                <div className="table-responsive">
-                                    <table className="table table-bordered">
-                                        <thead>
-                                        <tr>
-                                            <th> # </th>
-                                            <th> First name </th>
-                                            <th> Product </th>
-                                            <th> Amount </th>
-                                            <th> Deadline </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr className="table-info">
-                                            <td> 1 </td>
-                                            <td> Herman Beck </td>
-                                            <td> Photoshop </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr className="table-warning">
-                                            <td> 2 </td>
-                                            <td> Messsy Adam </td>
-                                            <td> Flash </td>
-                                            <td> $245.30 </td>
-                                            <td> July 1, 2015 </td>
-                                        </tr>
-                                        <tr className="table-danger">
-                                            <td> 3 </td>
-                                            <td> John Richards </td>
-                                            <td> Premeire </td>
-                                            <td> $138.00 </td>
-                                            <td> Apr 12, 2015 </td>
-                                        </tr>
-                                        <tr className="table-success">
-                                            <td> 4 </td>
-                                            <td> Peter Meggik </td>
-                                            <td> After effects </td>
-                                            <td> $ 77.99 </td>
-                                            <td> May 15, 2015 </td>
-                                        </tr>
-                                        <tr className="table-primary">
-                                            <td> 5 </td>
-                                            <td> Edward </td>
-                                            <td> Illustrator </td>
-                                            <td> $ 160.25 </td>
-                                            <td> May 03, 2015 </td>
-                                        </tr>
+                                        <tbody id="registrant-tbody">
+                                        {registrantData}
                                         </tbody>
                                     </table>
                                 </div>
