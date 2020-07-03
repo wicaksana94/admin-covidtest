@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dropdown } from 'react-bootstrap';
+// import { Dropdown } from 'react-bootstrap';
 
 class Navbar extends Component {
   toggleOffcanvas() {
