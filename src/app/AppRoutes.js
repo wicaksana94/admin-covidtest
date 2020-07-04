@@ -1,11 +1,12 @@
 import React, { Component,Suspense, lazy } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-
 import Spinner from '../app/shared/Spinner';
 
 const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 const Registrant = lazy(() => import('./dashboard/Registrant'));
 const Clinic = lazy(() => import('./dashboard/Clinic'));
+const AddClinic = lazy(() => import('./dashboard/AddClinic'));
+const EditClinic = lazy(() => import('./dashboard/EditClinic'));
 const Pricelist = lazy(() => import('./dashboard/Pricelist'));
 const Product = lazy(() => import('./dashboard/Product'));
 const Vendor = lazy(() => import('./dashboard/Vendor'));
@@ -46,6 +47,9 @@ class AppRoutes extends Component {
           <Route path="/form-Elements/basic-elements" component={ BasicElements } />
           <Route path="/registrant" component={ Registrant } />
           <Route path="/clinic" component={ Clinic } />
+          <Route path="/add_clinic" component={ AddClinic } />
+          <Route path="/edit_clinic/:id" component={ EditClinic } />
+
           <Route path="/pricelist" component={ Pricelist } />
           <Route path="/product" component={ Product } />
           <Route path="/vendor" component={ Vendor } />
