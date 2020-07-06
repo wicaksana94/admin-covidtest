@@ -10,6 +10,8 @@ const AddClinic = lazy(() => import('./dashboard/AddClinic'));
 const EditClinic = lazy(() => import('./dashboard/EditClinic'));
 
 const Pricelist = lazy(() => import('./dashboard/Pricelist'));
+const AddPricelist = lazy(() => import('./dashboard/AddPricelist'));
+const EditPricelist = lazy(() => import('./dashboard/EditPricelist'));
 
 const Product = lazy(() => import('./dashboard/Product'));
 const AddProduct = lazy(() => import('./dashboard/AddProduct'));
@@ -60,6 +62,8 @@ class AppRoutes extends Component {
                     <Route path="/edit_clinic/:id" component={EditClinic}/>
 
                     <Route path="/pricelist" component={Pricelist}/>
+                    <Route path="/add_pricelist" component={AddPricelist}/>
+                    <Route path="/edit_pricelist/:id" component={EditPricelist}/>
 
                     <Route path="/product" component={Product}/>
                     <Route path="/add_product" component={AddProduct}/>
