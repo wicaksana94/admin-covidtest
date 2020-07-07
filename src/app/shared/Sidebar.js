@@ -25,11 +25,17 @@ class Sidebar extends Component {
     }
   }
 
+  handleLogout() {
+    localStorage.removeItem("loginStatus");
+    window.location.reload();
+  };
+
   onRouteChanged() {
     document.querySelector('#sidebar').classList.remove('active');
     Object.keys(this.state).forEach(i => {
       this.setState({[i]: false});
     });
+
 
     const dropdownPaths = [
       {path:'/basic-ui', state: 'basicUiMenuOpen'},
@@ -69,9 +75,9 @@ class Sidebar extends Component {
                       <img src={ require("../../assets/images/faces/face8.jpg")} alt="profile" />
                     </div>
                     <div className="text-left ml-3">
-                      <p className="profile-name">Arya Wicaksana</p>
-                      <small className="designation text-muted text-small">Manager</small>
-                      <span className="status-indicator online"></span>
+                      <p className="profile-name">{localStorage.getItem('fullName')}</p>
+                      <small className="designation text-muted text-small">{localStorage.getItem('roleName')}</small>
+                      {/*<span className="status-indicator online"></span>*/}
                     </div>
                   </div>
                 </Dropdown.Toggle>
@@ -154,6 +160,12 @@ class Sidebar extends Component {
             <Link className="nav-link" to="/vendor">
               <i className="mdi mdi-office-building menu-icon"></i>
               <span className="menu-title">Vendor</span>
+            </Link>
+          </li>
+          <li className={ this.isPathActive('/login') ? 'nav-item active' : 'nav-item' } onClick={this.handleLogout}>
+            <Link className="nav-link" to="/login">
+              <i className="mdi mdi-key menu-icon"></i>
+              <span className="menu-title">Logout</span>
             </Link>
           </li>
           {/*<li className={ this.isPathActive('/icons') ? 'nav-item active' : 'nav-item' }>*/}
