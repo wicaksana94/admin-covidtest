@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-// import { Collapse } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
+import Swal from "sweetalert2";
 
 class Sidebar extends Component {
   state = {};
@@ -26,8 +26,20 @@ class Sidebar extends Component {
   }
 
   handleLogout() {
-    localStorage.removeItem("loginStatus");
-    window.location.reload();
+    Swal.fire({
+      title: 'Apakah Anda yakin untuk Logout?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya',
+      cancelButtonText: 'Tidak',
+    }).then(result=> {
+      if (result.value) {
+        localStorage.removeItem("loginStatus");
+        window.location.reload();
+      }
+    })
   };
 
   onRouteChanged() {
