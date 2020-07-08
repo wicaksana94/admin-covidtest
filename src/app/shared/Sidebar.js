@@ -174,8 +174,8 @@ class Sidebar extends Component {
                 <span className="menu-title">Vendor</span>
               </Link>
             </li>
-            <li className={ this.isPathActive('/login') ? 'nav-item active' : 'nav-item' } onClick={this.handleLogout}>
-              <Link className="nav-link" to="/login">
+            <li className='nav-item' onClick={this.handleLogout}>
+              <Link className="nav-link" to="#">
                 <i className="mdi mdi-key menu-icon"></i>
                 <span className="menu-title">Logout</span>
               </Link>
