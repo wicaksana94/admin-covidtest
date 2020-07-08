@@ -21,9 +21,13 @@ const Vendor = lazy(() => import('./dashboard/Vendor'));
 const AddVendor = lazy(() => import('./dashboard/AddVendor'));
 const EditVendor = lazy(() => import('./dashboard/EditVendor'));
 
-const Buttons = lazy(() => import('./basic-ui/Buttons'));
-const Dropdowns = lazy(() => import('./basic-ui/Dropdowns'));
-const Typography = lazy(() => import('./basic-ui/Typography'));
+const UserList = lazy(() => import('./dashboard/UserList'));
+const AddUser = lazy(() => import('./dashboard/AddUserList'));
+const EditUser = lazy(() => import('./dashboard/EditUserList'));
+
+const UserAccess = lazy(() => import('./dashboard/UserAccess'));
+const AddUserAccess = lazy(() => import('./dashboard/AddUserAccess'));
+const EditUserAccess = lazy(() => import('./dashboard/EditUserAccess'));
 
 const BasicElements = lazy(() => import('./form-elements/BasicElements'));
 
@@ -50,9 +54,8 @@ class AppRoutes extends Component {
                 <Switch>
                     <Route exact path="/dashboard" component={Dashboard}/>
 
-                    <Route path="/basic-ui/buttons" component={Buttons}/>
-                    <Route path="/basic-ui/dropdowns" component={Dropdowns}/>
-                    <Route path="/basic-ui/typography" component={Typography}/>
+                    <Route path="/dashboard/user_list" component={UserList}/>
+                    <Route path="/dashboard/user_access" component={UserAccess}/>
 
                     <Route path="/form-Elements/basic-elements" component={BasicElements}/>
                     <Route path="/registrant" component={Registrant}/>
@@ -79,6 +82,13 @@ class AppRoutes extends Component {
 
                     <Route path="/charts/chart-js" component={ChartJs}/>
 
+                    <Route path="/user_list" component={UserList}/>
+                    <Route path="/add_user" component={AddUser}/>
+                    <Route path="/edit_user/:id" component={EditUser}/>
+
+                    <Route path="/user_access" component={UserAccess}/>
+                    <Route path="/add_user_access" component={AddUserAccess}/>
+                    <Route path="/edit_user_access/:id" component={EditUserAccess}/>
 
                     <Route path="/user-pages/login-1" component={Login}/>
                     <Route path="/user-pages/register-1" component={Register1}/>

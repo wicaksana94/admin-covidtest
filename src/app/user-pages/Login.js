@@ -27,6 +27,7 @@ export class Login extends Component {
           localStorage.setItem("roleName", response.data.role_name);
           localStorage.setItem("phone", response.data.phone);
           localStorage.setItem("email", response.data.email);
+          localStorage.setItem("menuAccess", response.data.menu_access);
           ReactDOM.render(
               <BrowserRouter>
                 <App />
