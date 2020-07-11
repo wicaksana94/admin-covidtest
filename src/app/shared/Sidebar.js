@@ -70,7 +70,39 @@ class Sidebar extends Component {
     }));
 
   }
+
+  isPathActive(path) {
+    return this.props.location.pathname.startsWith(path);
+  }
+
   render () {
+    let authorizedMenu = JSON.parse(localStorage.getItem("AuthorizedMenu"))
+    let authorizedMenuList = authorizedMenu.map(function(list_data, index){
+      function setActive(parameter) {
+        // Clear all active class in the sidebar menu
+        let findActiveElement = document.querySelector(".active");
+        if(findActiveElement !==null){
+          findActiveElement.classList.remove("active");
+        }
+        // Set active to clicked menu
+        let element = document.getElementById(parameter);
+        element.parentNode.classList.add("active");
+      }
+          return(
+              <li className='nav-item' key={list_data.id}>
+                <Link
+                    className="nav-link"
+                    to={list_data.path_name}
+                    id={list_data.name+"_"+list_data.id}
+                    onClick={() => setActive(list_data.name+"_"+list_data.id)}
+                >
+                  <i className={list_data.icon}></i>
+                  <span className="menu-title">{list_data.name}</span>
+                </Link>
+              </li>
+          )
+
+    })
     return (
         <nav className="sidebar sidebar-offcanvas" id="sidebar">
           {/*<div className="text-center sidebar-brand-wrapper d-flex align-items-center">*/}
@@ -124,60 +156,61 @@ class Sidebar extends Component {
                 {/*<button className="btn btn-success btn-block">New Project <i className="mdi mdi-plus"></i></button>*/}
               </div>
             </li>
-            <li className={ this.isPathActive('/dashboard') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/dashboard">
-                <i className="mdi mdi-television menu-icon"></i>
-                <span className="menu-title">Dashboard</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/user_list') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/user_list">
-                <i className="mdi mdi-format-list-checkbox menu-icon"></i>
-                <span className="menu-title">User List</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/user_access') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/user_access">
-                <i className="mdi mdi-emoticon-happy menu-icon"></i>
-                <span className="menu-title">User Access</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/registrant') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/registrant">
-                <i className="mdi mdi-account menu-icon"></i>
-                <span className="menu-title">Registrant</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/clinic') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/clinic">
-                <i className="mdi mdi-hospital menu-icon"></i>
-                <span className="menu-title">Clinic</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/pricelist') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/pricelist">
-                <i className="mdi mdi-account-cash menu-icon"></i>
-                <span className="menu-title">Pricelist</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/product') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/product">
-                <i className="mdi mdi-book-multiple menu-icon"></i>
-                <span className="menu-title">Product</span>
-              </Link>
-            </li>
-            <li className={ this.isPathActive('/vendor') ? 'nav-item active' : 'nav-item' }>
-              <Link className="nav-link" to="/vendor">
-                <i className="mdi mdi-office-building menu-icon"></i>
-                <span className="menu-title">Vendor</span>
-              </Link>
-            </li>
-            <li className='nav-item' onClick={this.handleLogout}>
-              <Link className="nav-link" to="#">
-                <i className="mdi mdi-key menu-icon"></i>
-                <span className="menu-title">Logout</span>
-              </Link>
-            </li>
+              {authorizedMenuList}
+              <li className='nav-item' onClick={this.handleLogout}>
+                <Link className="nav-link" to="#">
+                  <i className="mdi mdi-key menu-icon"></i>
+                  <span className="menu-title">Logout</span>
+                </Link>
+              </li>
+            {/*<li className={ this.isPathActive('/dashboard') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/dashboard">*/}
+            {/*    <i className="mdi mdi-television menu-icon"></i>*/}
+            {/*    <span className="menu-title">Dashboard</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/user_list') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/user_list">*/}
+            {/*    <i className="mdi mdi-format-list-checkbox menu-icon"></i>*/}
+            {/*    <span className="menu-title">User List</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/user_access') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/user_access">*/}
+            {/*    <i className="mdi mdi-emoticon-happy menu-icon"></i>*/}
+            {/*    <span className="menu-title">User Access</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/registrant') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/registrant">*/}
+            {/*    <i className="mdi mdi-account menu-icon"></i>*/}
+            {/*    <span className="menu-title">Registrant</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/clinic') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/clinic">*/}
+            {/*    <i className="mdi mdi-hospital menu-icon"></i>*/}
+            {/*    <span className="menu-title">Clinic</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/pricelist') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/pricelist">*/}
+            {/*    <i className="mdi mdi-account-cash menu-icon"></i>*/}
+            {/*    <span className="menu-title">Pricelist</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/product') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/product">*/}
+            {/*    <i className="mdi mdi-book-multiple menu-icon"></i>*/}
+            {/*    <span className="menu-title">Product</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
+            {/*<li className={ this.isPathActive('/vendor') ? 'nav-item active' : 'nav-item' }>*/}
+            {/*  <Link className="nav-link" to="/vendor">*/}
+            {/*    <i className="mdi mdi-office-building menu-icon"></i>*/}
+            {/*    <span className="menu-title">Vendor</span>*/}
+            {/*  </Link>*/}
+            {/*</li>*/}
             {/*<li className={ this.isPathActive('/user') ? 'nav-item active' : 'nav-item' }>*/}
             {/*  <div className={ this.state.userMenuOpen ? 'nav-link menu-expanded' : 'nav-link' } onClick={ () => this.toggleMenuState('userMenuOpen') } data-toggle="collapse">*/}
             {/*    <i className="mdi mdi-emoticon-happy menu-icon"></i>*/}
@@ -231,9 +264,6 @@ class Sidebar extends Component {
     );
   }
 
-  isPathActive(path) {
-    return this.props.location.pathname.startsWith(path);
-  }
 
   componentDidMount() {
     this.onRouteChanged();

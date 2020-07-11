@@ -55,7 +55,7 @@ export class UserAccess extends Component {
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                <h4 className="card-title">Daftar Produk</h4>
+                                <h4 className="card-title">Daftar Role Akses Pengguna</h4>
                                 <p className="card-description">
                                     <Link to="/add_user_access"><button className="btn btn-primary text-center">+ Tambah</button></Link>
                                 </p>

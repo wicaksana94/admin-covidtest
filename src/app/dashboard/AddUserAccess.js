@@ -40,7 +40,7 @@ class AddUserAccess extends Component {
 
         axios({
             method: 'post',
-            url: '/postAddUserAccess',
+            url: '/postAddUserRole',
             data: data,
         })
             .then(function (response) {
@@ -83,7 +83,7 @@ class AddUserAccess extends Component {
                                     <form onSubmit={this.handleSubmit}>
                                         <div className="form-group">
                                             <label htmlFor="name">Nama</label>
-                                            <input placeholder="Isi nama role (jabatan) disini" type="text" id="name" name="name" className="form-control form-control-lg"/>
+                                            <input placeholder="Isi nama role (jabatan) disini" type="text" id="name" name="name" className="form-control form-control-lg" required />
                                         </div>
                                         <Form.Group >
                                             {this.state.menu_list.map(menu_list => (
@@ -93,7 +93,7 @@ class AddUserAccess extends Component {
                                                     key= {menu_list.id}
                                                     id= {menu_list.id}
                                                     label= {menu_list.name}
-                                                    value= {menu_list.name}
+                                                    value= {menu_list.id}
                                                     checked={this.state.active}
                                                     onChange={this.handleCheckboxClick}
                                                 />

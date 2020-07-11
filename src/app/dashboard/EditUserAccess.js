@@ -7,8 +7,8 @@ class EditUserAccess extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            role_list:[],
-            user_details_data:[],
+            menu_list:[],
+            user_role_data:[],
             id_edit:this.props.match.params.id
         };
 
@@ -17,28 +17,34 @@ class EditUserAccess extends Component {
     }
 
     componentDidMount() {
-        this.getRole()
-        this.getUserById()
+        this.getMenu()
+        this.getUserRoleById()
     }
 
-    getRole() {
+    getMenu() {
         axios.request({
             method: 'GET',
-            url: '/getRole',
+            url: '/getMenu',
             responseType: 'json'
         }).then(response => this.setState({
-            role_list:response.data
+            menu_list:response.data
         }))
     }
 
-    getUserById() {
+    getUserRoleById() {
         axios.request({
             method: 'GET',
-            url: '/getUserById/'+this.state.id_edit,
+            url: '/getUserRoleById/'+this.state.id_edit,
             responseType: 'json'
         }).then(response => this.setState({
-            user_details_data:response.data
+            user_role_data:response.data
         }))
+    }
+
+    handleCheckboxClick = (event) => {
+        this.setState({
+            status: event.target.checked
+        });
     }
 
     deleteUser() {
@@ -53,13 +59,13 @@ class EditUserAccess extends Component {
             cancelButtonText: 'Tidak'
         }).then((result) => {
             if (result.value) {
-                axios.delete(`/deleteUser/${this.state.id_edit}`)
+                axios.delete(`/deleteUserAccess/${this.state.id_edit}`)
                     .then(res => {
                         Swal.fire(
                             'Berhasil Dihapus',
-                            'Data pengguna telah berhasil dihapus.',
+                            'Data akses telah berhasil dihapus.',
                             'success'
-                        ).then(result => {window.location.replace("/user_list")})
+                        ).then(result => {window.location.replace("/user_access")})
                     })
             }
         })
@@ -74,7 +80,7 @@ class EditUserAccess extends Component {
 
         axios({
             method: 'post',
-            url: '/updateUser/',
+            url: '/updateUserRole/',
             data: data,
         })
             .then(function (response) {
@@ -83,7 +89,7 @@ class EditUserAccess extends Component {
                         'Data tersimpan',
                         'Data pengguna telah tersimpan',
                         'success'
-                    ).then(result => {window.location.replace("/user_list")})
+                    ).then(result => {window.location.replace("/user_access")})
                 } else {
                     Swal.fire(
                         'Error',
@@ -98,42 +104,48 @@ class EditUserAccess extends Component {
     }
 
     render() {
+
         return (
             <div>
                 <div className="page-header">
-                    <h3 className="page-title">Edit User</h3>
+                    <h3 className="page-title">Edit User Access</h3>
                     <div>
-                        <button className="btn btn-danger" onClick={this.deleteUser}>Hapus Pengguna</button>
+                        <button className="btn btn-danger" onClick={this.deleteUser}>Hapus Akses</button>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                {/*<h4 className="card-title">Menambahkan data klinik</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
-                                        <label htmlFor="fullname">Nama</label>
-                                        {this.state.user_details_data.map(user_details_data => (
-                                            <input placeholder="Isi nama panjang disini" type="text" id="fullname" name="fullname" className="form-control form-control-lg" defaultValue={user_details_data.fullname} key={user_details_data.id}/>
+                                        <label htmlFor="name">Nama</label>
+                                        {this.state.user_role_data.map(user_role => (
+                                            <input placeholder="Isi nama role (jabatan) disini" type="text" id="name" name="name" key={user_role.id} defaultValue={user_role.name} className="form-control form-control-lg"/>
                                         ))}
                                     </div>
-                                    <div className="form-group">
-                                        <label htmlFor="vendor">Role</label>
-                                        <Form.Control as="select" name="role_id" >
-                                            {this.state.role_list.map(role_list => (
-                                                <option id={role_list.id} key={role_list.id} value={role_list.id}>{role_list.name}</option>
-                                            ))}
-                                        </Form.Control>
-                                    </div>
-                                    <button type="submit" className="btn btn-primary mr-2">Simpan Perubahan</button>
+                                    <Form.Group >
+                                        {this.state.menu_list.map(menu_list => (
+                                            <Form.Check
+                                                type="Checkbox"
+                                                name="menu_access"
+                                                key= {menu_list.id}
+                                                id= {menu_list.id}
+                                                label= {menu_list.name}
+                                                value= {menu_list.id}
+                                                checked={this.state.active}
+                                                onChange={this.handleCheckboxClick}
+                                            />
+                                        ))}
+                                    </Form.Group>
+                                    <button type="submit" className="btn btn-primary mr-2">Submit</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 }
 
