@@ -7,6 +7,10 @@ import axios from "../axios/API";
 import * as Swal from "sweetalert2";
 
 export class Login extends Component {
+  getAuthorizedMenu(menu_access_obj) {
+    console.log(menu_access_obj)
+  }
+
   handleLogin(event) {
     event.preventDefault();
     const data = new FormData(event.target);
@@ -17,21 +21,30 @@ export class Login extends Component {
     }).then(function (response) {
         if (response.data.status===1){
           // console.log(response.data.status)
+          axios({
+            method: 'get',
+            url: '/getAuthorizedMenu/'+response.data.role_id,
+          }).then(function (response) {
+            localStorage.setItem("AuthorizedMenu", JSON.stringify(response.data));
+          })
           Swal.fire(
               'Login Berhasil',
               'Anda sedang login sebagai '+response.data.role_name,
               'success'
-          ).then(result => {window.location.replace("/dashboard")})
-          localStorage.setItem("loginStatus", true);
-          localStorage.setItem("fullName", response.data.fullname);
-          localStorage.setItem("roleName", response.data.role_name);
-          localStorage.setItem("phone", response.data.phone);
-          localStorage.setItem("email", response.data.email);
-          ReactDOM.render(
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-              , document.getElementById('root'));
+          ).then(function (result) {
+            localStorage.setItem("loginStatus", true);
+            localStorage.setItem("fullName", response.data.fullname);
+            localStorage.setItem("roleID", response.data.role_id);
+            localStorage.setItem("roleName", response.data.role_name);
+            localStorage.setItem("phone", response.data.phone);
+            localStorage.setItem("email", response.data.email);
+            localStorage.setItem("menuAccess", response.data.menu_access);
+            ReactDOM.render(
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+                , document.getElementById('root'));
+          })
         } else {
           Swal.fire(
               'Error',
