@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {Link} from "react-router-dom";
 import axios from "../axios/API";
+import myhelper from '../helper/myhelper'
 
 export class Pricelist extends Component {
     constructor(props) {
@@ -35,7 +36,7 @@ export class Pricelist extends Component {
                 <tr key={list_data.id}>
                     <td>{list_data.id}</td>
                     <td>{list_data.id_product}</td>
-                    <td>{list_data.harga}</td>
+                    <td>{myhelper.convertToRupiah(list_data.harga)}</td>
                     <td>{list_data.jenis}</td>
                     <td><Link to={editLink}><label id={"status_"+list_data.id} className="badge badge-warning" style={{cursor:"Pointer"}}>Edit</label></Link></td>
                 </tr>
