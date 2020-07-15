@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {Form, Row, Col} from 'react-bootstrap';
 import axios from '../axios/API'
 import Swal from 'sweetalert2'
+import myhelper from '../helper/myhelper'
 
 export class Registrant extends Component {
     constructor(props) {
@@ -278,12 +279,12 @@ export class Registrant extends Component {
             return (
                 <tr key={list_data.id}>
                     <td>{list_data.id}</td>
-                    <td>{list_data.test_date}</td>
+                    <td>{myhelper.convertToSlashDateFormat(list_data.test_date)}</td>
                     <td>{list_data.name}</td>
                     <td>{list_data.email}</td>
                     <td>{list_data.phone}</td>
                     <td>{list_data.test_covid}</td>
-                    <td>{list_data.publish_fare}</td>
+                    <td>{myhelper.convertToRupiah(list_data.publish_fare)}</td>
                     <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
                 </tr>
             );

@@ -25,7 +25,6 @@ export class Product extends Component {
     }
 
     render() {
-        console.log(this.state.product_list)
         let productData = this.state.product_list.map(function(list_data, index){
             // Link creation for edit data
             const editLink = {

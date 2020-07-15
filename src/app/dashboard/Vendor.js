@@ -57,7 +57,7 @@ export class Vendor extends Component {
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                <h4 className="card-title">Daftar Klinik</h4>
+                                <h4 className="card-title">Daftar Vendor</h4>
                                 <p className="card-description">
                                     <Link to="/add_vendor"><button className="btn btn-primary text-center">+ Tambah</button></Link>
                                 </p>

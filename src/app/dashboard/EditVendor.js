@@ -70,19 +70,24 @@ class EditVendor extends Component {
                 if (response.data===1){
                     Swal.fire(
                         'Data tersimpan',
-                        'Data klinik telah tersimpan',
+                        'Data vendor telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/vendor")})
                 } else {
                     Swal.fire(
                         'Error',
-                        'Error, cobalah beberapa saat lagi',
+                        response.data,
                         'error'
                     )
                 }
             })
             .catch(err => {
                 // console.log(err);
+                Swal.fire(
+                    'Error',
+                    'Error, cobalah beberapa saat lagi',
+                    'error'
+                )
             });
     }
 
