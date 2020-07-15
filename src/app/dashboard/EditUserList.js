@@ -115,7 +115,7 @@ class EditUser extends Component {
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                {/*<h4 className="card-title">Menambahkan data klinik</h4>*/}
+                                {/*<h4 className="card-title">Menambahkan data pengguna</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
                                         <label htmlFor="fullname">Nama</label>

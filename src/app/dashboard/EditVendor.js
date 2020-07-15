@@ -45,7 +45,7 @@ class EditVendor extends Component {
                     .then(res => {
                         Swal.fire(
                             'Berhasil Dihapus',
-                            'Data klinik telah berhasil dihapus.',
+                            'Data vandor telah berhasil dihapus.',
                             'success'
                         ).then(result => {window.location.replace("/vendor")})
                     })
@@ -97,14 +97,14 @@ class EditVendor extends Component {
                 <div className="page-header">
                     <h3 className="page-title">Edit Vendor</h3>
                     <div>
-                        <button className="btn btn-danger" onClick={this.deleteVendor}>Hapus Klinik</button>
+                        <button className="btn btn-danger" onClick={this.deleteVendor}>Hapus Vendor</button>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                {/*<h4 className="card-title">Menambahkan data klinik</h4>*/}
+                                {/*<h4 className="card-title">Menambahkan data vendor</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
                                         <label htmlFor="name">Nama</label>
