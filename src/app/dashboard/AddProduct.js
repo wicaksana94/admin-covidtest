@@ -56,7 +56,7 @@ class AddProduct extends Component {
                 if (response.data===1){
                     Swal.fire(
                         'Data tersimpan',
-                        'Data klinik telah tersimpan',
+                        'Data produk telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/product")})
                 } else {

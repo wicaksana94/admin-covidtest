@@ -58,7 +58,7 @@ class EditProduct extends Component {
                     .then(res => {
                         Swal.fire(
                             'Berhasil Dihapus',
-                            'Data klinik telah berhasil dihapus.',
+                            'Data produk telah berhasil dihapus.',
                             'success'
                         ).then(result => {window.location.replace("/product")})
                     })
@@ -83,7 +83,7 @@ class EditProduct extends Component {
                 if (response.data===1){
                     Swal.fire(
                         'Data tersimpan',
-                        'Data klinik telah tersimpan',
+                        'Data produk telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/product")})
                 } else {
@@ -110,14 +110,14 @@ class EditProduct extends Component {
                 <div className="page-header">
                     <h3 className="page-title">Edit Product</h3>
                     <div>
-                        <button className="btn btn-danger" onClick={this.deleteProduct}>Hapus Klinik</button>
+                        <button className="btn btn-danger" onClick={this.deleteProduct}>Hapus Produk</button>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                {/*<h4 className="card-title">Menambahkan data klinik</h4>*/}
+                                {/*<h4 className="card-title">Menambahkan data produk</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
                                         <label htmlFor="id">ID</label>
