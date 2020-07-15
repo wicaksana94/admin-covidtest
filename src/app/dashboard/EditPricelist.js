@@ -57,7 +57,7 @@ class EditPricelist extends Component {
                     .then(res => {
                         Swal.fire(
                             'Berhasil Dihapus',
-                            'Data klinik telah berhasil dihapus.',
+                            'Data harga telah berhasil dihapus.',
                             'success'
                         ).then(result => {window.location.replace("/pricelist")})
                     })
@@ -82,19 +82,24 @@ class EditPricelist extends Component {
                 if (response.data===1){
                     Swal.fire(
                         'Data tersimpan',
-                        'Data klinik telah tersimpan',
+                        'Data harga telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/pricelist")})
                 } else {
                     Swal.fire(
                         'Error',
-                        'Error, cobalah beberapa saat lagi',
+                        response.data,
                         'error'
                     )
                 }
             })
             .catch(err => {
                 // console.log(err);
+                Swal.fire(
+                    'Error',
+                    'Error, cobalah beberapa saat lagi',
+                    'error'
+                )
             });
     }
 
@@ -104,7 +109,7 @@ class EditPricelist extends Component {
                 <div className="page-header">
                     <h3 className="page-title">Edit Pricelist</h3>
                     <div>
-                        <button className="btn btn-danger" onClick={this.deletePricelist}>Hapus Klinik</button>
+                        <button className="btn btn-danger" onClick={this.deletePricelist}>Hapus Harga</button>
                     </div>
                 </div>
                 <div className="row">
