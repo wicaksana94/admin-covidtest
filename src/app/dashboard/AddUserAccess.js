@@ -53,13 +53,18 @@ class AddUserAccess extends Component {
                 } else {
                     Swal.fire(
                         'Error',
-                        'Error, cobalah beberapa saat lagi',
+                        response.data,
                         'error'
                     )
                 }
             })
             .catch(err => {
                 // console.log(err);
+                Swal.fire(
+                    'Error',
+                    'Error, cobalah beberapa saat lagi',
+                    'error'
+                )
             });
     }
 
@@ -83,7 +88,7 @@ class AddUserAccess extends Component {
                                     <form onSubmit={this.handleSubmit}>
                                         <div className="form-group">
                                             <label htmlFor="name">Nama</label>
-                                            <input placeholder="Isi nama role (jabatan) disini" type="text" id="name" name="name" className="form-control form-control-lg" required />
+                                            <input placeholder="Isi nama role (jabatan) disini" type="text" id="name" name="name" className="form-control form-control-lg" />
                                         </div>
                                         <Form.Group >
                                             {this.state.menu_list.map(menu_list => (

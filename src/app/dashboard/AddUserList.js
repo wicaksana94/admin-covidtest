@@ -45,13 +45,18 @@ class AddUserList extends Component {
                 } else {
                     Swal.fire(
                         'Error',
-                        'Error, cobalah beberapa saat lagi',
+                        response.data,
                         'error'
                     )
                 }
             })
             .catch(err => {
                 // console.log(err);
+                Swal.fire(
+                    'Error',
+                    'Error, cobalah beberapa saat lagi',
+                    'error'
+                )
             });
     }
 
