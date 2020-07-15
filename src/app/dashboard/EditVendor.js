@@ -70,7 +70,7 @@ class EditVendor extends Component {
                 if (response.data===1){
                     Swal.fire(
                         'Data tersimpan',
-                        'Data klinik telah tersimpan',
+                        'Data vendor telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/vendor")})
                 } else {
