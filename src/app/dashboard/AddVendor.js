@@ -29,13 +29,18 @@ class AddVendor extends Component {
                 } else {
                     Swal.fire(
                         'Error',
-                        'Error, cobalah beberapa saat lagi',
+                        response.data,
                         'error'
                     )
                 }
             })
             .catch(err => {
                 // console.log(err);
+                Swal.fire(
+                    'Error',
+                    'Error, cobalah beberapa saat lagi',
+                    'error'
+                )
             });
     }
 
@@ -67,7 +72,7 @@ class AddVendor extends Component {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="phone">Telepon</label>
-                                            <input placeholder="Isi telepon" type="phone" id="phone" name="phone" className="form-control form-control"/>
+                                            <input placeholder="Isi telepon" type="tel" id="phone" name="phone" className="form-control form-control"/>
                                         </div>
                                         <Form.Group controlId="status">
                                             <Form.Label>Status</Form.Label>
