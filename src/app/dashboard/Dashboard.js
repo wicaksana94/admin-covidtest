@@ -76,7 +76,7 @@ export class Dashboard extends Component {
               <div className="card-body">
                 <div className="clearfix">
                   <div className="float-left">
-                    <i className="mdi mdi-cube text-danger icon-lg"></i>
+                    <i className="mdi mdi-cube text-primary icon-lg"></i>
                   </div>
                   <div className="float-right">
                     <p className="mb-0 text-right text-dark">Total Pendaftar SWAB</p>
@@ -96,7 +96,7 @@ export class Dashboard extends Component {
               <div className="card-body">
                 <div className="clearfix">
                   <div className="float-left">
-                    <i className="mdi mdi-cube text-danger icon-lg"></i>
+                    <i className="mdi mdi-cube text-info icon-lg"></i>
                   </div>
                   <div className="float-right">
                     <p className="mb-0 text-right text-dark">Total Pendaftar RAPID</p>
