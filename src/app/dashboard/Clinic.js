@@ -35,7 +35,7 @@ export class Clinic extends Component {
         this.getClinic()
 
         // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
-        let loadNextData = () => this.getRegistrant()
+        let loadNextData = () => this.getClinic()
         window.onscroll = function(ev) {
             // integer 30 below is just for init padding ratio outside the body offsetHeight
             if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 30)) {
