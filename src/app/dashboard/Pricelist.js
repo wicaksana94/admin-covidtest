@@ -29,7 +29,17 @@ export class Pricelist extends Component {
     }
 
     componentDidMount() {
+        // Load first data
         this.getPricelist()
+
+        // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
+        let loadNextData = () => this.getPricelist()
+        window.onscroll = function(ev) {
+            // integer 30 below is just for init padding ratio outside the body offsetHeight
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 30)) {
+                loadNextData()
+            }
+        };
     }
 
     render() {
