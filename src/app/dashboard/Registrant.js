@@ -8,7 +8,7 @@ export class Registrant extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            limit:[5],
+            limit:[20],
             offset:[0],
             list_data:[]
         };
@@ -28,7 +28,7 @@ export class Registrant extends Component {
         }).then( response => this.setState({
                 list_data: this.state.list_data.concat(response.data)
         })).then(response => this.setState({
-            offset:(Number(offset)+5)
+            offset:(Number(offset)+limit)
         }))
     }
 
