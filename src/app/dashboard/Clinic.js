@@ -6,6 +6,8 @@ export class Clinic extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            limit:[20],
+            offset:[0],
             list_data:[]
         };
 
@@ -13,22 +15,33 @@ export class Clinic extends Component {
         // this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getRegistrant() {
+    getClinic() {
+        let limit = this.state.limit;
+        let offset = this.state.offset;
+
         axios.request({
             method: 'GET',
-            url: '/getClinic',
+            url: '/getClinic/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
             list_data:response.data
+        })).then(response => this.setState({
+            offset:(Number(offset)+limit)
         }))
     }
 
-    addClinic() {
-        alert('test')
-    }
-
     componentDidMount() {
-        this.getRegistrant()
+        // Load first data
+        this.getClinic()
+
+        // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
+        let loadNextData = () => this.getRegistrant()
+        window.onscroll = function(ev) {
+            // integer 30 below is just for init padding ratio outside the body offsetHeight
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 30)) {
+                loadNextData()
+            }
+        };
     }
 
 
