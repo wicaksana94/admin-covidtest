@@ -36,7 +36,7 @@ export class Registrant extends Component {
         // Load first data
         this.getRegistrant()
 
-        // Starting load data triggered when scrollbar is at the bottom of the page
+        // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
         let loadNextData = () => this.getRegistrant()
         window.onscroll = function(ev) {
             // integer 30 below is just for init padding ratio outside the body offsetHeight
