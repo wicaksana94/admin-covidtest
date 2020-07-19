@@ -16,8 +16,8 @@ export class Clinic extends Component {
     }
 
     getClinic() {
-        let limit = this.state.limit;
-        let offset = this.state.offset;
+        let limit = Number(this.state.limit);
+        let offset = Number(this.state.offset);
 
         axios.request({
             method: 'GET',
@@ -26,7 +26,7 @@ export class Clinic extends Component {
         }).then(response => this.setState({
             list_data:response.data
         })).then(response => this.setState({
-            offset:(Number(offset)+limit)
+            offset:(offset+limit)
         }))
     }
 

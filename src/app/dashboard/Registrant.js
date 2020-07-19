@@ -18,8 +18,8 @@ export class Registrant extends Component {
     }
 
     getRegistrant() {
-        let limit = this.state.limit;
-        let offset = this.state.offset;
+        let limit = Number(this.state.limit);
+        let offset = Number(this.state.offset);
 
         axios.request({
             method: 'GET',
@@ -28,7 +28,7 @@ export class Registrant extends Component {
         }).then( response => this.setState({
                 list_data: this.state.list_data.concat(response.data)
         })).then(response => this.setState({
-            offset:(Number(offset)+limit)
+            offset:(offset+limit)
         }))
     }
 
