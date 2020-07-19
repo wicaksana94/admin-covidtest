@@ -7,17 +7,24 @@ export class Pricelist extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            limit:[20],
+            offset:[0],
             pricelist_list:[]
         };
     }
 
     getPricelist() {
+        let limit = Number(this.state.limit);
+        let offset = Number(this.state.offset);
+
         axios.request({
             method: 'GET',
-            url: '/getPricelist',
+            url: '/getPricelist/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
             pricelist_list:response.data
+        })).then(response => this.setState({
+            offset:(offset+limit)
         }))
     }
 
