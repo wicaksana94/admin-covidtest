@@ -21,7 +21,7 @@ export class UserAccess extends Component {
             url: '/getUserAccess/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
-            user_access_list:response.data
+            user_access_list: this.state.user_access_list.concat(response.data)
         })).then(response => this.setState({
             offset:(offset+limit)
         }))

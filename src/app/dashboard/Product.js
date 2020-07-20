@@ -21,7 +21,7 @@ export class Product extends Component {
             url: '/getProduct/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
-            product_list:response.data
+            product_list: this.state.product_list.concat(response.data)
         })).then(response => this.setState({
             offset:(offset+limit)
         }))

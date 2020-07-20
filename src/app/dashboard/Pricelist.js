@@ -22,7 +22,7 @@ export class Pricelist extends Component {
             url: '/getPricelist/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
-            pricelist_list:response.data
+            pricelist_list: this.state.pricelist_list.concat(response.data)
         })).then(response => this.setState({
             offset:(offset+limit)
         }))

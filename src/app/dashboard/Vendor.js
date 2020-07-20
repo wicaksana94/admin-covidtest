@@ -21,7 +21,7 @@ export class Vendor extends Component {
             url: '/getVendor/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
-            list_data:response.data
+            list_data: this.state.list_data.concat(response.data)
         })).then(response => this.setState({
             offset:(offset+limit)
         }))
