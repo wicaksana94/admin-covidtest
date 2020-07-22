@@ -6,22 +6,39 @@ export class UserAccess extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            limit:[20],
+            offset:[0],
             user_access_list:[]
         };
     }
 
     getUserAccess() {
+        let limit = Number(this.state.limit);
+        let offset = Number(this.state.offset);
+
         axios.request({
             method: 'GET',
-            url: '/getUserAccess',
+            url: '/getUserAccess/'+limit+'/'+offset,
             responseType: 'json'
         }).then(response => this.setState({
-            user_access_list:response.data
+            user_access_list: this.state.user_access_list.concat(response.data)
+        })).then(response => this.setState({
+            offset:(offset+limit)
         }))
     }
 
     componentDidMount() {
+        // Load first data
         this.getUserAccess()
+
+        // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
+        let loadNextData = () => this.getUserAccess()
+        window.onscroll = function(ev) {
+            // integer 30 below is just for init padding ratio outside the body offsetHeight
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 30)) {
+                loadNextData()
+            }
+        };
     }
 
     render() {

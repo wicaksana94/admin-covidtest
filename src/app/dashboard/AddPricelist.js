@@ -8,16 +8,19 @@ class AddPricelist extends Component {
         super(props);
         this.state = {
             product_list:[],
-            vendor_list:[]
+            vendor_list:[],
+            showBatasJumlahPendaftar: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handlerOnChange = this.handlerOnChange.bind(this);
+
     }
 
     getProduct() {
         axios.request({
             method: 'GET',
-            url: '/getProduct',
+            url: '/getAllProduct',
             responseType: 'json'
         }).then(response => this.setState({
             product_list:response.data
@@ -30,36 +33,61 @@ class AddPricelist extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const data = new FormData(event.target);
+        let batas_atas = Number(document.getElementById('batas_atas').value);
+        let batas_bawah = Number(document.getElementById('batas_bawah').value);
+        if (batas_atas < batas_bawah){
+            Swal.fire(
+                'Error',
+                'Batas Atas harus lebih besar daripada Batas Bawah',
+                'error'
+            )
+            return
+        } else {
+            const data = new FormData(event.target);
 
-        axios({
-            method: 'post',
-            url: '/postAddPricelist',
-            data: data,
-        })
-            .then(function (response) {
-                if (response.data===1){
-                    Swal.fire(
-                        'Data tersimpan',
-                        'Data harga telah tersimpan',
-                        'success'
-                    ).then(result => {window.location.replace("/pricelist")})
-                } else {
+            axios({
+                method: 'post',
+                url: '/postAddPricelist',
+                data: data,
+            })
+                .then(function (response) {
+                    if (response.data===1){
+                        Swal.fire(
+                            'Data tersimpan',
+                            'Data harga telah tersimpan',
+                            'success'
+                        ).then(result => {window.location.replace("/pricelist")})
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            response.data,
+                            'error'
+                        )
+                    }
+                })
+                .catch(err => {
+                    // console.log(err);
                     Swal.fire(
                         'Error',
-                        response.data,
+                        'Error, cobalah beberapa saat lagi',
                         'error'
                     )
-                }
+                });
+        }
+    }
+
+    handlerOnChange=(e)=>{
+        if (e.target.value==="non_publish") {
+            this.setState({
+                showBatasJumlahPendaftar: true,
+                [e.target.name] : e.target.value
             })
-            .catch(err => {
-                // console.log(err);
-                Swal.fire(
-                    'Error',
-                    'Error, cobalah beberapa saat lagi',
-                    'error'
-                )
-            });
+        } else {
+            this.setState({
+                showBatasJumlahPendaftar: false,
+                [e.target.name] : e.target.value
+            })
+        }
     }
 
     render() {
@@ -84,25 +112,31 @@ class AddPricelist extends Component {
                                             <label htmlFor="id_product">ID Product</label>
                                             <Form.Control as="select" name="id_product">
                                                 {this.state.product_list.map(product_list => (
-                                                    <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name}</option>
+                                                    <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name} - {product_list.vendor_name}</option>
                                                 ))}
                                             </Form.Control>
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="harga">Price</label>
-                                        <input placeholder="Isi harga disini" type="text" id="harga" name="harga" className="form-control form-control"/>
-                                    </div>
-                                    <div className="form-group">
                                         <div className="form-group">
                                             <label htmlFor="id_product">Type</label>
-                                            <Form.Control as="select" name="jenis">
-                                                <option id="type_1" value="publish">publish</option>
-                                                <option id="type_2" value="1 - 50">1 - 50</option>
-                                                <option id="type_3" value="50 - 100">50 - 100</option>
-                                                <option id="type_1" value="> 100">> 100</option>
+                                            <Form.Control as="select" name="is_publish" onChange={this.handlerOnChange} >
+                                                <option id="publish" value="publish">Publish</option>
+                                                <option id="non_publish" value="non_publish">Non-Publish</option>
                                             </Form.Control>
                                         </div>
+                                    </div>
+                                    <div className={this.state.showBatasJumlahPendaftar===true ? "form-group" : "d-none"}>
+                                        <label htmlFor="batas_bawah">Angka Batas Bawah Jumlah Pendaftar</label>
+                                        <input placeholder="Isi angka batas bawah jumlah pendaftar disini" type="number" min="1" id="batas_bawah" name="batas_bawah" className="form-control form-control-lg"/>
+                                    </div>
+                                    <div className={this.state.showBatasJumlahPendaftar===true ? "form-group" : "d-none"}>
+                                        <label htmlFor="batas_atas">Angka Batas Atas Jumlah Pendaftar</label>
+                                        <input placeholder="Isi angka batas atas jumlah pendaftar disini" type="number" min="1" id="batas_atas" name="batas_atas" className="form-control form-control-lg"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="harga">Harga</label>
+                                        <input placeholder="Isi harga disini" type="number" id="harga" name="harga" className="form-control form-control"/>
                                     </div>
                                     <button type="submit" className="btn btn-primary mr-2">Submit</button>
                                 </form>

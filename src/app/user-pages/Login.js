@@ -39,6 +39,10 @@ export class Login extends Component {
             localStorage.setItem("phone", response.data.phone);
             localStorage.setItem("email", response.data.email);
             localStorage.setItem("menuAccess", response.data.menu_access);
+            // Check if user is vendor then assign localStorage vendorID
+            if (response.data.role_id === 3) {
+              localStorage.setItem("vendorID", response.data.id_vendor)
+            }
             ReactDOM.render(
                 <BrowserRouter>
                   <App />

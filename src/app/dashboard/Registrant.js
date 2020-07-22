@@ -8,6 +8,8 @@ export class Registrant extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            limit:[20],
+            offset:[0],
             list_data:[]
         };
 
@@ -16,17 +18,32 @@ export class Registrant extends Component {
     }
 
     getRegistrant() {
+        let limit = Number(this.state.limit);
+        let offset = Number(this.state.offset);
+
         axios.request({
             method: 'GET',
-            url: '/getRegistrant',
+            url: '/getRegistrant/'+limit+'/'+offset,
             responseType: 'json'
-        }).then(response => this.setState({
-            list_data:response.data
+        }).then( response => this.setState({
+                list_data: this.state.list_data.concat(response.data)
+        })).then(response => this.setState({
+            offset:(offset+limit)
         }))
     }
 
     componentDidMount() {
+        // Load first data
         this.getRegistrant()
+
+        // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
+        let loadNextData = () => this.getRegistrant()
+        window.onscroll = function(ev) {
+            // integer 30 below is just for init padding ratio outside the body offsetHeight
+            if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 30)) {
+                loadNextData()
+            }
+        };
     }
 
     handlerOnChange=(e)=>{
