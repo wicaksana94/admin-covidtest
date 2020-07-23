@@ -3,7 +3,7 @@ import {BrowserRouter} from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import ReactDOM from "react-dom";
 import App from '../../app/App';
-import axios from "../axios/API";
+import axios from "../config/API";
 import * as Swal from "sweetalert2";
 
 export class Login extends Component {

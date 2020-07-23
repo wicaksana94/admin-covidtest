@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {Form, Row, Col} from 'react-bootstrap';
-import axios from '../axios/API'
+import axios from '../config/API'
 import Swal from 'sweetalert2'
 import myhelper from '../helper/myhelper'
 

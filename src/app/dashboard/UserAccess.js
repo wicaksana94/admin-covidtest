@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {Link} from "react-router-dom";
-import axios from "../axios/API";
+import axios from "../config/API";
 
 export class UserAccess extends Component {
     constructor(props) {

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Form} from "react-bootstrap";
-import axios from "../axios/API";
+import axios from "../config/API";
 import * as Swal from "sweetalert2";
 
 class EditUserAccess extends Component {
