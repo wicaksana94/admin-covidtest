@@ -36,7 +36,7 @@ class Sidebar extends Component {
       cancelButtonText: 'Tidak',
     }).then(result=> {
       if (result.value) {
-        localStorage.removeItem("loginStatus");
+        localStorage.clear();
         window.location.replace("/");
       }
     })
