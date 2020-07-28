@@ -9,7 +9,11 @@ export class Registrant extends Component {
         this.state = {
             limit:[20],
             offset:[0],
-            list_data:[]
+            list_data:[],
+            publish_fare_swab:[],
+            publish_fare_rapid:[],
+            invoice_swab:[],
+            invoice_rapid:[]
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
@@ -32,9 +36,53 @@ export class Registrant extends Component {
         }))
     }
 
+    getSumFareSwab(){
+        axios.request({
+            method: 'GET',
+            url: '/getSumFareSwab',
+            responseType: 'json'
+        }).then( response => this.setState({
+            publish_fare_swab: response.data
+        }))
+    }
+
+    getInvoiceSwab(){
+        axios.request({
+            method: 'GET',
+            url: '/getInvoiceSwab',
+            responseType: 'json'
+        }).then( response => this.setState({
+            invoice_swab: response.data
+        }))
+    }
+
+    getSumFareRapid(){
+        axios.request({
+            method: 'GET',
+            url: '/getSumFareRapid',
+            responseType: 'json'
+        }).then( response => this.setState({
+            publish_fare_rapid: response.data
+        }))
+    }
+
+    getInvoiceRapid(){
+        axios.request({
+            method: 'GET',
+            url: '/getInvoiceRapid',
+            responseType: 'json'
+        }).then( response => this.setState({
+            invoice_rapid: response.data
+        }))
+    }
+
     componentDidMount() {
         // Load first data
         this.getRegistrant()
+        this.getSumFareSwab()
+        this.getSumFareRapid()
+        this.getInvoiceSwab()
+        this.getInvoiceRapid()
 
         // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
         let loadNextData = () => this.getRegistrant()
@@ -339,24 +387,6 @@ export class Registrant extends Component {
                 </tr>
             );
         })
-        // let swabPublishFare = function () {
-        //     let sumFareSwab = 0;
-        //     let counterSwab = 0;
-        //     let sumFareRapid = 0;
-        //     let counterRapid = 0;
-        //     this.state.list_data.map(function (list_data, index) {
-        //         if (list_data.id_product === 'SWB') {
-        //             sumFareSwab += Number(list_data.publish_fare)
-        //             counterSwab++
-        //         } else if (list_data.id_product === 'RPD') {
-        //             sumFareRapid += Number(list_data.publish_fare)
-        //             counterRapid++
-        //         }
-        //         return (
-        //             <span>{counterSwab}</span>
-        //         );
-        //     })
-        // }
 
         return (
             <div>
@@ -404,8 +434,8 @@ export class Registrant extends Component {
                                         </div>
                                     </div>
                                 </form>
-                                <div className="summaryOfRegistrantData my-5">
-                                    <h4><b>Summary</b></h4>
+                                <div className="summaryOfRegistrantData my-5 p-3 text-center border border-primary">
+                                    <h4 className="mb-3"><b><u>Summary</u></b></h4>
                                     <table className="table">
                                         <thead>
                                         <tr>
@@ -417,13 +447,21 @@ export class Registrant extends Component {
                                         <tbody>
                                         <tr>
                                             <td>SWAB</td>
-                                            <td id="swabPublishFare">0</td>
-                                            <td id="swabTagihanVendor">0</td>
+                                            <td id="swabPublishFare">
+                                                {myhelper.convertToRupiah(this.state.publish_fare_swab)}
+                                            </td>
+                                            <td id="swabTagihanVendor">
+                                                {myhelper.convertToRupiah(this.state.invoice_swab)}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>RAPID</td>
-                                            <td id="rapidPublishFare">0</td>
-                                            <td id="rapidTagihanVendor">0</td>
+                                            <td id="rapidPublishFare">
+                                                {myhelper.convertToRupiah(this.state.publish_fare_rapid)}
+                                            </td>
+                                            <td id="rapidTagihanVendor">
+                                                {myhelper.convertToRupiah(this.state.invoice_rapid)}
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
