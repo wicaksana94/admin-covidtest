@@ -256,9 +256,14 @@ export class Registrant extends Component {
                             cancelButtonText: 'Tidak',
                         }).then(result=> {
                             if (result.value) {
-                                let url = '/updateRegistrantStatus/'+id
-                                axios
-                                    .put(url)
+                                const data = new FormData();
+                                data.set("id_registrant",id)
+
+                                axios({
+                                    method: 'post',
+                                    url: '/updateRegistrantStatus',
+                                    data: data,
+                                })
                                     .then(res => {
                                         Swal.fire({
                                             icon: 'success',
