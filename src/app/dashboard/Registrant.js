@@ -13,7 +13,8 @@ export class Registrant extends Component {
             publish_fare_swab:[],
             publish_fare_rapid:[],
             invoice_swab:[],
-            invoice_rapid:[]
+            invoice_rapid:[],
+            invoice_title:[]
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
@@ -84,6 +85,16 @@ export class Registrant extends Component {
         this.getInvoiceSwab()
         this.getInvoiceRapid()
 
+        if(localStorage.getItem('vendorID')){
+            this.setState({
+                invoice_title: "Tagihan dari Pointer"
+            })
+        } else {
+            this.setState({
+                invoice_title: "Tagihan ke Vendor"
+            })
+        }
+
         // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
         let loadNextData = () => this.getRegistrant()
         window.onscroll = function(ev) {
@@ -133,6 +144,13 @@ export class Registrant extends Component {
         event.preventDefault();
         const data = new FormData(event.target);
 
+        let newSumFareSwab=0;
+        let newSumFareRapid=0;
+        let counterSwab=0;
+        let counterRapid=0;
+        let invoiceSwab = 0;
+        let invoiceRapid = 0;
+
         axios({
             method: 'post',
             url: '/postFilterRegistrantData',
@@ -146,14 +164,24 @@ export class Registrant extends Component {
                 existingTbody.parentNode.replaceChild(newTbody, existingTbody)
 
                 response.data.map(function(list_data){
-                    let badgeClass
-                    let status
+                    let badgeClass;
+                    let status;
+
                     if(list_data.registrant_status==="0") {
                         badgeClass = "badge badge-danger";
                         status = "Belum";
                     } else {
                         badgeClass = "badge badge-success";
                         status = "Sudah";
+                    }
+
+                    // Re-create summary data based on the response
+                    if (list_data.id_product==='SWB') {
+                        newSumFareSwab += Number(list_data.publish_fare)
+                        counterSwab++
+                    } else if(list_data.id_product==='RPD') {
+                        newSumFareRapid += Number(list_data.publish_fare)
+                        counterRapid++
                     }
 
                     async function doCreate_tr() {
@@ -312,6 +340,25 @@ export class Registrant extends Component {
                 });
 
             })
+            .then(function doReCreateSummary() {
+                axios({
+                    method: 'get',
+                    url: '/getSwabPricelistByTotalRegistrant/'+counterSwab,
+                }).then(function(response){
+                    invoiceSwab = response.data;
+                    document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
+                    document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
+                })
+
+                axios({
+                    method: 'get',
+                    url: '/getRapidPricelistByTotalRegistrant/'+counterRapid,
+                }).then(function(response){
+                    invoiceRapid = response.data;
+                    document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
+                    document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
+                })
+            })
             .catch(function (error) {
                 console.log(error);
             });
@@ -439,14 +486,14 @@ export class Registrant extends Component {
                                         </div>
                                     </div>
                                 </form>
-                                <div className="summaryOfRegistrantData my-5 p-3 text-center border border-primary">
+                                <div className="summaryOfRegistrantData my-5 p-3 text-center border rounded border-primary">
                                     <h4 className="mb-3"><b><u>Summary</u></b></h4>
                                     <table className="table">
                                         <thead>
                                         <tr>
                                             <th scope="col">Jenis Test</th>
                                             <th scope="col">Publish Fare</th>
-                                            <th scope="col">Tagihan ke Vendor</th>
+                                            <th scope="col">{this.state.invoice_title}</th>
                                         </tr>
                                         </thead>
                                         <tbody>
