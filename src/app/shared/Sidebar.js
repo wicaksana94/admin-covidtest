@@ -116,7 +116,7 @@ class Sidebar extends Component {
                   <Dropdown.Toggle className="nav-link user-switch-dropdown-toggler p-0 toggle-arrow-hide bg-transparent border-0 w-100">
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="profile-image">
-                        <img src={ require("../../assets/images/faces/face8.jpg")} alt="profile" />
+                        <img src={ require("../../assets/images/faces/noface.png")} alt="profile" />
                       </div>
                       <div className="text-left ml-3">
                         <p className="profile-name">{localStorage.getItem('fullName')}</p>
