@@ -271,6 +271,16 @@ export class Registrant extends Component {
                         tr.appendChild(td_status);
                     }
 
+                    async function doCreate_td_vendor_name() {
+                        if (localStorage.getItem("vendorID") === null) {
+                            var td_vendor_name = document.createElement("td");
+                            var vendor_name_node = document.createTextNode(list_data.vendor_name);
+                            td_vendor_name.appendChild(vendor_name_node);
+                            var tr = document.getElementById("tr_" + list_data.id);
+                            tr.appendChild(td_vendor_name);
+                        }
+                    }
+
                     function changeStatus(id){
                         console.log(id)
                         Swal.fire({
@@ -333,6 +343,7 @@ export class Registrant extends Component {
                         await doCreate_td_phone()
                         await doCreate_td_test_covid()
                         await doCreate_td_publish_fare()
+                        await doCreate_td_vendor_name()
                         await doCreate_td_status()
                     }
 
@@ -369,6 +380,7 @@ export class Registrant extends Component {
         let registrantData = this.state.list_data.map(function(list_data, index){
             let badgeClass
             let status
+            let vendorName
             function changeStatus(id){
                 Swal.fire({
                     title: 'Apakah Anda yakin mengubah status?',
@@ -426,8 +438,15 @@ export class Registrant extends Component {
                 badgeClass = "badge badge-success";
                 status = "Sudah";
             }
+
+            // Jika login sebagai admin maka tampilkan data nama vendor
+            if (localStorage.getItem("vendorID") === null){
+                vendorName = <td>{list_data.vendor_name}</td>;
+            }
+
+
             return (
-                <tr key={list_data.id}>
+                <tr key={index}>
                     <td>{list_data.id}</td>
                     <td>{myhelper.convertToSlashDateFormat(list_data.test_date)}</td>
                     <td>{list_data.name}</td>
@@ -435,10 +454,17 @@ export class Registrant extends Component {
                     <td>{list_data.phone}</td>
                     <td>{list_data.test_covid}</td>
                     <td>{myhelper.convertToRupiah(list_data.publish_fare)}</td>
+                    {vendorName}
                     <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
                 </tr>
             );
         })
+
+        let vendorNameHeader
+        // Jika login sebagai admin maka tampilkan header tabel data nama vendor
+        if (localStorage.getItem("vendorID") === null){
+            vendorNameHeader = <th>Vendor</th>;
+        }
 
         return (
             <div>
@@ -529,6 +555,7 @@ export class Registrant extends Component {
                                             <th>No.HP</th>
                                             <th>Jenis Test</th>
                                             <th>Publish Fare</th>
+                                            {vendorNameHeader}
                                             <th>Status</th>
                                         </tr>
                                         </thead>
