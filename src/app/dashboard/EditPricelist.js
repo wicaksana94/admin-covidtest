@@ -30,8 +30,15 @@ class EditPricelist extends Component {
             method: 'GET',
             url: '/getAllProduct',
             responseType: 'json'
-        }).then(response => this.setState({
+        })
+        .then(response => this.setState({
             product_list:response.data
+        })).then(response => this.state.product_list.map((product_list, index) => {
+            return this.setState({
+                clinic_city:product_list.city,
+                clinic_id_vendor:product_list.id_vendor,
+                clinic_vendor_name:product_list.vendor_name
+            })
         }))
     }
 
@@ -50,8 +57,28 @@ class EditPricelist extends Component {
             method: 'GET',
             url: '/getPricelistById/'+this.state.id_edit,
             responseType: 'json'
-        }).then(response => this.setState({
+        })
+        .then(response => this.setState({
             pricelist_details_data:response.data
+        }))
+        .then(response => this.state.pricelist_details_data.map((pricelist_details_data, index) => {
+            if(pricelist_details_data.jenis==="publish"){
+                return this.setState({
+                    pricelist_id_product:pricelist_details_data.id_product,
+                    pricelist_jenis:pricelist_details_data.jenis
+                })
+            }else{
+                let batas = pricelist_details_data.jenis.replace(/\s/g,'').split("-");
+                let batas_bawah = batas[0];
+                let batas_atas = batas[1];
+                return this.setState({
+                    pricelist_id_product:pricelist_details_data.id_product,
+                    pricelist_jenis:pricelist_details_data.jenis,
+                    pricelist_jumlah_batas_bawah_pendaftar:batas_bawah,
+                    pricelist_jumlah_batas_atas_pendaftar:batas_atas,
+                    showBatasJumlahPendaftar:true
+                })
+            }
         }))
     }
 
@@ -144,6 +171,42 @@ class EditPricelist extends Component {
     }
 
     render() {
+        let productList =
+            <Form.Control as="select" name="id_product">
+                {
+                    this.state.product_list.map((product_list, index) => {
+                        if (product_list.id === this.state.pricelist_id_product) {
+                            return <option id={product_list.id} key={product_list.id} value={product_list.id} selected>{product_list.name} - {product_list.vendor_name}</option>
+                        } else {
+                            return <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name} - {product_list.vendor_name}</option>
+                        }
+                    })
+                }
+            </Form.Control>
+
+        let typeList =
+                <div>
+                    {
+                        this.state.pricelist_details_data.map((pricelist_details_data, index) => {
+                            if (pricelist_details_data.jenis === "publish") {
+                                return (
+                                    <Form.Control key={index} defaultValue="publish" as="select" name="is_publish" onChange={this.handlerOnChange} >
+                                        <option id="publish" value="publish">Publish</option>
+                                        <option id="non_publish" value="non_publish">Non-Publish</option>
+                                    </Form.Control>
+                                )
+                            } else {
+                                return (
+                                    <Form.Control key={index} defaultValue="non_publish" as="select" name="is_publish" onChange={this.handlerOnChange} >
+                                        <option id="publish" value="publish">Publish</option>
+                                        <option id="non_publish" value="non_publish">Non-Publish</option>
+                                    </Form.Control>
+                                )
+                            }
+                        })
+                    }
+                </div>
+
         return (
             <div>
                 <div className="page-header">
@@ -159,30 +222,23 @@ class EditPricelist extends Component {
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
                                         <div className="form-group">
-                                            <label htmlFor="id_product">ID Product</label>
-                                            <Form.Control as="select" name="id_product">
-                                                {this.state.product_list.map(product_list => (
-                                                    <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name} - {product_list.vendor_name}</option>
-                                                ))}
-                                            </Form.Control>
+                                            <label htmlFor="id_product">Product</label>
+                                            {productList}
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <div className="form-group">
                                             <label htmlFor="id_product">Type</label>
-                                            <Form.Control as="select" name="is_publish" onChange={this.handlerOnChange} >
-                                                <option id="publish" value="publish">Publish</option>
-                                                <option id="non_publish" value="non_publish">Non-Publish</option>
-                                            </Form.Control>
+                                            {typeList}
                                         </div>
                                     </div>
                                     <div className={this.state.showBatasJumlahPendaftar===true ? "form-group" : "d-none"}>
                                         <label htmlFor="batas_bawah">Angka Batas Bawah Jumlah Pendaftar</label>
-                                        <input placeholder="Isi angka batas bawah jumlah pendaftar disini" type="number" min="1" id="batas_bawah" name="batas_bawah" className="form-control form-control-lg"/>
+                                        <input placeholder="Isi angka batas bawah jumlah pendaftar disini" type="number" min="1" id="batas_bawah" name="batas_bawah" className="form-control form-control-lg" defaultValue={this.state.pricelist_jumlah_batas_bawah_pendaftar}/>
                                     </div>
                                     <div className={this.state.showBatasJumlahPendaftar===true ? "form-group" : "d-none"}>
                                         <label htmlFor="batas_atas">Angka Batas Atas Jumlah Pendaftar</label>
-                                        <input placeholder="Isi angka batas atas jumlah pendaftar disini" type="number" min="2" id="batas_atas" name="batas_atas" className="form-control form-control-lg"/>
+                                        <input placeholder="Isi angka batas atas jumlah pendaftar disini" type="number" min="2" id="batas_atas" name="batas_atas" className="form-control form-control-lg" defaultValue={this.state.pricelist_jumlah_batas_atas_pendaftar}/>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="harga">Harga</label>
