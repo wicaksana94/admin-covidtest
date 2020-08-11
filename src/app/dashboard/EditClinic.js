@@ -19,7 +19,7 @@ class EditClinic extends Component {
 
     componentDidMount() {
         this.getCity()
-        this.getVendor()
+        this.getAllVendor()
         this.getClinicById()
     }
 
@@ -33,10 +33,10 @@ class EditClinic extends Component {
         }))
     }
 
-    getVendor() {
+    getAllVendor() {
         axios.request({
             method: 'GET',
-            url: '/getVendor',
+            url: '/getAllVendor',
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
