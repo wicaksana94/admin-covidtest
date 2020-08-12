@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Form} from "react-bootstrap";
-import axios from "../axios/API";
+import axios from "../config/API";
 import * as Swal from "sweetalert2";
 
 class EditClinic extends Component {
@@ -10,7 +10,10 @@ class EditClinic extends Component {
             city_list:[],
             vendor_list:[],
             clinic_details_data:[],
-            id_edit:this.props.match.params.id
+            id_edit:this.props.match.params.id,
+            clinic_city:[],
+            clinic_id_vendor:[],
+            clinic_vendor_name:[]
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -19,7 +22,7 @@ class EditClinic extends Component {
 
     componentDidMount() {
         this.getCity()
-        this.getVendor()
+        this.getVendorData()
         this.getClinicById()
     }
 
@@ -33,10 +36,16 @@ class EditClinic extends Component {
         }))
     }
 
-    getVendor() {
+    getVendorData() {
+        let url;
+        if(localStorage.getItem("vendorID") === null){
+            url = '/getAllVendor';
+        } else {
+            url = '/getVendor';
+        }
         axios.request({
             method: 'GET',
-            url: '/getVendor',
+            url: url,
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
@@ -50,6 +59,12 @@ class EditClinic extends Component {
             responseType: 'json'
         }).then(response => this.setState({
             clinic_details_data:response.data
+        })).then(response => this.state.clinic_details_data.map((clinic_details_data, index) => {
+            return this.setState({
+                clinic_city:clinic_details_data.city,
+                clinic_id_vendor:clinic_details_data.id_vendor,
+                clinic_vendor_name:clinic_details_data.vendor_name
+            })
         }))
     }
 
@@ -116,6 +131,32 @@ class EditClinic extends Component {
     }
 
     render() {
+        let cityList =
+            <Form.Control as="select" name="city" >
+                {
+                    this.state.city_list.map((city_list, index) => {
+                        if (city_list.name === this.state.clinic_city) {
+                            return <option id={city_list.id} key={city_list.id} value={city_list.name} selected>{city_list.name}</option>
+                        } else {
+                            return <option id={city_list.id} key={city_list.id} value={city_list.name}>{city_list.name}</option>
+                        }
+                    })
+                }
+            </Form.Control>
+
+        let vendorList =
+            <Form.Control as="select" name="id_vendor" >
+                {
+                    this.state.vendor_list.map((vendor_list, index) => {
+                        if (vendor_list.id === this.state.clinic_id_vendor) {
+                            return <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id} selected>{vendor_list.name}</option>
+                        } else {
+                            return <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id}>{vendor_list.name}</option>
+                        }
+                    })
+                }
+            </Form.Control>
+
         return (
             <div>
                 <div className="page-header">
@@ -128,7 +169,6 @@ class EditClinic extends Component {
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
-                                {/*<h4 className="card-title">Menambahkan data klinik</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
                                         <label htmlFor="name">Nama</label>
@@ -144,11 +184,7 @@ class EditClinic extends Component {
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="kota">Kota</label>
-                                        <Form.Control as="select" name="city" >
-                                            {this.state.city_list.map(city_list => (
-                                                <option id={city_list.id} key={city_list.id} value={city_list.name}>{city_list.name}</option>
-                                            ))}
-                                        </Form.Control>
+                                        {cityList}
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="capacity">Kapasitas</label>
@@ -158,11 +194,7 @@ class EditClinic extends Component {
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="vendor">Vendor</label>
-                                        <Form.Control as="select" name="id_vendor" >
-                                            {this.state.vendor_list.map(vendor_list => (
-                                                <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id}>{vendor_list.name}</option>
-                                            ))}
-                                        </Form.Control>
+                                        {vendorList}
                                     </div>
                                     <button type="submit" className="btn btn-primary mr-2">Simpan Perubahan</button>
                                 </form>

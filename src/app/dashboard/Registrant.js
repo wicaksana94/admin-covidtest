@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import {Form, Row, Col} from 'react-bootstrap';
-import axios from '../axios/API'
+import axios from '../config/API'
 import Swal from 'sweetalert2'
 import myhelper from '../helper/myhelper'
 
@@ -10,11 +9,17 @@ export class Registrant extends Component {
         this.state = {
             limit:[20],
             offset:[0],
-            list_data:[]
+            list_data:[],
+            publish_fare_swab:[],
+            publish_fare_rapid:[],
+            invoice_swab:[],
+            invoice_rapid:[],
+            invoice_title:[]
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleExportExcel = this.handleExportExcel.bind(this);
     }
 
     getRegistrant() {
@@ -32,9 +37,63 @@ export class Registrant extends Component {
         }))
     }
 
+    getSumFareSwab(){
+        axios.request({
+            method: 'GET',
+            url: '/getSumFareSwab',
+            responseType: 'json'
+        }).then( response => this.setState({
+            publish_fare_swab: response.data
+        }))
+    }
+
+    getInvoiceSwab(){
+        axios.request({
+            method: 'GET',
+            url: '/getInvoiceSwab',
+            responseType: 'json'
+        }).then( response => this.setState({
+            invoice_swab: response.data
+        }))
+    }
+
+    getSumFareRapid(){
+        axios.request({
+            method: 'GET',
+            url: '/getSumFareRapid',
+            responseType: 'json'
+        }).then( response => this.setState({
+            publish_fare_rapid: response.data
+        }))
+    }
+
+    getInvoiceRapid(){
+        axios.request({
+            method: 'GET',
+            url: '/getInvoiceRapid',
+            responseType: 'json'
+        }).then( response => this.setState({
+            invoice_rapid: response.data
+        }))
+    }
+
     componentDidMount() {
         // Load first data
         this.getRegistrant()
+        this.getSumFareSwab()
+        this.getSumFareRapid()
+        this.getInvoiceSwab()
+        this.getInvoiceRapid()
+
+        if(localStorage.getItem('vendorID')){
+            this.setState({
+                invoice_title: "Tagihan dari Pointer"
+            })
+        } else {
+            this.setState({
+                invoice_title: "Tagihan ke Vendor"
+            })
+        }
 
         // Starting load data triggered when scrollbar is at the bottom of the page (Trigger Infinity Scroll)
         let loadNextData = () => this.getRegistrant()
@@ -52,9 +111,45 @@ export class Registrant extends Component {
         })
     }
 
+    handleExportExcel(event){
+        event.preventDefault();
+        let name = document.getElementById('name').value;
+        let phone = document.getElementById('phone').value;
+        let email = document.getElementById('email').value;
+        let test_date = document.getElementById('test_date').value;
+
+        axios.request({
+            method: 'POST',
+            url: '/exportExcel/',
+            data: {
+                name: name,
+                phone: phone,
+                email: email,
+                test_date: test_date
+            },
+            responseType: 'blob', // important
+        }).then((response) => {
+            const timestampNow = String(new Date().valueOf()).substr(-10)
+            const filename = 'ExportExcel_'+timestampNow;
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename+'.xlsx'); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
+    }
+
     handleSubmit(event) {
         event.preventDefault();
         const data = new FormData(event.target);
+
+        let newSumFareSwab=0;
+        let newSumFareRapid=0;
+        let counterSwab=0;
+        let counterRapid=0;
+        let invoiceSwab = 0;
+        let invoiceRapid = 0;
 
         axios({
             method: 'post',
@@ -69,14 +164,24 @@ export class Registrant extends Component {
                 existingTbody.parentNode.replaceChild(newTbody, existingTbody)
 
                 response.data.map(function(list_data){
-                    let badgeClass
-                    let status
+                    let badgeClass;
+                    let status;
+
                     if(list_data.registrant_status==="0") {
                         badgeClass = "badge badge-danger";
                         status = "Belum";
                     } else {
                         badgeClass = "badge badge-success";
                         status = "Sudah";
+                    }
+
+                    // Re-create summary data based on the response
+                    if (list_data.id_product==='SWB') {
+                        newSumFareSwab += Number(list_data.publish_fare)
+                        counterSwab++
+                    } else if(list_data.id_product==='RPD') {
+                        newSumFareRapid += Number(list_data.publish_fare)
+                        counterRapid++
                     }
 
                     async function doCreate_tr() {
@@ -166,6 +271,16 @@ export class Registrant extends Component {
                         tr.appendChild(td_status);
                     }
 
+                    async function doCreate_td_vendor_name() {
+                        if (localStorage.getItem("vendorID") === null) {
+                            var td_vendor_name = document.createElement("td");
+                            var vendor_name_node = document.createTextNode(list_data.vendor_name);
+                            td_vendor_name.appendChild(vendor_name_node);
+                            var tr = document.getElementById("tr_" + list_data.id);
+                            tr.appendChild(td_vendor_name);
+                        }
+                    }
+
                     function changeStatus(id){
                         console.log(id)
                         Swal.fire({
@@ -179,9 +294,14 @@ export class Registrant extends Component {
                             cancelButtonText: 'Tidak',
                         }).then(result=> {
                             if (result.value) {
-                                let url = '/updateRegistrantStatus/'+id
-                                axios
-                                    .put(url)
+                                const data = new FormData();
+                                data.set("id_registrant",id)
+
+                                axios({
+                                    method: 'post',
+                                    url: '/updateRegistrantStatus',
+                                    data: data,
+                                })
                                     .then(res => {
                                         Swal.fire({
                                             icon: 'success',
@@ -223,6 +343,7 @@ export class Registrant extends Component {
                         await doCreate_td_phone()
                         await doCreate_td_test_covid()
                         await doCreate_td_publish_fare()
+                        await doCreate_td_vendor_name()
                         await doCreate_td_status()
                     }
 
@@ -230,17 +351,37 @@ export class Registrant extends Component {
                 });
 
             })
+            .then(function doReCreateSummary() {
+                axios({
+                    method: 'get',
+                    url: '/getSwabPricelistByTotalRegistrant/'+counterSwab,
+                }).then(function(response){
+                    invoiceSwab = response.data;
+                    document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
+                    document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
+                })
+
+                axios({
+                    method: 'get',
+                    url: '/getRapidPricelistByTotalRegistrant/'+counterRapid,
+                }).then(function(response){
+                    invoiceRapid = response.data;
+                    document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
+                    document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
+                })
+            })
             .catch(function (error) {
                 console.log(error);
             });
     }
 
+
     render() {
         let registrantData = this.state.list_data.map(function(list_data, index){
             let badgeClass
             let status
+            let vendorName
             function changeStatus(id){
-                // console.log(id)
                 Swal.fire({
                     title: 'Apakah Anda yakin mengubah status?',
                     // text: "helo "+list_data.id,
@@ -251,38 +392,42 @@ export class Registrant extends Component {
                     confirmButtonText: 'Ya',
                     cancelButtonText: 'Tidak'
                 }).then(async result=> {
-                    // console.log(result)
                     if (result.value) {
-                        let url = '/updateRegistrantStatus/'+id
-                        axios
-                            .put(url)
-                            .then(res => {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil',
-                                    text: 'Status berhasil diubah.'
-                                }).then(response => {
-                                    if (res.data.status===1 && res.data.new_status==="Belum") {
-                                        let existingStatusBanner = document.getElementById("status_"+list_data.id);
-                                        existingStatusBanner.className = "badge badge-danger";
-                                        existingStatusBanner.innerHTML = 'Belum';
-                                    } else if (res.data.status===1 && res.data.new_status==="Sudah") {
-                                        let existingStatusBanner = document.getElementById("status_"+list_data.id);
-                                        existingStatusBanner.className = "badge badge-success";
-                                        existingStatusBanner.innerHTML = 'Sudah';
-                                    } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: 'Terjadi eror, harap coba beberapa saat lagi.'
-                                        })
-                                    }
-                                })
+                        const data = new FormData();
+                        data.set("id_registrant", id);
 
+                        axios({
+                            method: 'post',
+                            url: '/updateRegistrantStatus',
+                            data: data,
+                        })
+                        .then(res => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: 'Status berhasil diubah.'
+                            }).then(response => {
+                                if (res.data.status===1 && res.data.new_status==="Belum") {
+                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                    existingStatusBanner.className = "badge badge-danger";
+                                    existingStatusBanner.innerHTML = 'Belum';
+                                } else if (res.data.status===1 && res.data.new_status==="Sudah") {
+                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                    existingStatusBanner.className = "badge badge-success";
+                                    existingStatusBanner.innerHTML = 'Sudah';
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Terjadi eror, harap coba beberapa saat lagi.'
+                                    })
+                                }
                             })
-                            .catch(err => {
-                                // console.log(err);
-                            });
+
+                        })
+                        .catch(err => {
+                            // console.log(err);
+                        });
                     }
                 })
             }
@@ -293,8 +438,15 @@ export class Registrant extends Component {
                 badgeClass = "badge badge-success";
                 status = "Sudah";
             }
+
+            // Jika login sebagai admin maka tampilkan data nama vendor
+            if (localStorage.getItem("vendorID") === null){
+                vendorName = <td>{list_data.vendor_name}</td>;
+            }
+
+
             return (
-                <tr key={list_data.id}>
+                <tr key={index}>
                     <td>{list_data.id}</td>
                     <td>{myhelper.convertToSlashDateFormat(list_data.test_date)}</td>
                     <td>{list_data.name}</td>
@@ -302,75 +454,96 @@ export class Registrant extends Component {
                     <td>{list_data.phone}</td>
                     <td>{list_data.test_covid}</td>
                     <td>{myhelper.convertToRupiah(list_data.publish_fare)}</td>
+                    {vendorName}
                     <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
                 </tr>
             );
         })
 
+        let vendorNameHeader
+        // Jika login sebagai admin maka tampilkan header tabel data nama vendor
+        if (localStorage.getItem("vendorID") === null){
+            vendorNameHeader = <th>Vendor</th>;
+        }
+
         return (
             <div>
-                <div className="page-header">
-                    <h3 className="page-title"> Registrant Tables </h3>
-                    <nav aria-label="breadcrumb">
-                        <ol className="breadcrumb">
-                            {/*<li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>*/}
-                            {/*<li className="breadcrumb-item active" aria-current="page">Basic tables</li>*/}
-                        </ol>
-                    </nav>
-                </div>
                 <div className="row">
                     <div className="col-lg-12 grid-margin stretch-card">
                         <div className="card">
                             <div className="card-body">
                                 <h4 className="card-title">Daftar Peserta Tes Covid</h4>
-                                {/*<p className="card-description"> Add className <code>.table</code>*/}
-                                {/*</p>*/}
-                                <Form className="row" onSubmit={this.handleSubmit}>
+                                <form className="row" onSubmit={this.handleSubmit}>
                                     <div className="col-lg-6">
-                                        <Form.Group as={Row} controlId="formPlaintextTanggal">
-                                            <Form.Label column sm="2">
-                                                Tanggal
-                                            </Form.Label>
-                                            <Col sm="10" md="4" lg="4">
-                                                <Form.Control type="date" placeholder="Tanggal Rapid" name="test_date" onChange={this.handlerOnChange} />
-                                            </Col>
-                                        </Form.Group>
-
-                                        <Form.Group as={Row} controlId="formPlaintextNama">
-                                            <Form.Label column sm="2">
-                                                Nama
-                                            </Form.Label>
-                                            <Col sm="10">
-                                                <Form.Control type="text" placeholder="Nama" name="name" value={this.state.value} onChange={this.handlerOnChange} />
-                                            </Col>
-                                        </Form.Group>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextTanggal"
+                                                   className="form-label col-form-label col-sm-2">Tanggal</label>
+                                            <div className="col-lg-4 col-md-4 col-sm-10">
+                                                <input type="date" placeholder="Tanggal Rapid" id="test_date" name="test_date" className="form-control form-control-lg"/>
+                                            </div>
+                                        </div>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextNama"
+                                                   className="form-label col-form-label col-sm-2">Nama</label>
+                                            <div className="col-sm-10">
+                                                <input placeholder="Isi nama disini" type="text" id="name" name="name" className="form-control form-control-lg"/>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="col-lg-6">
-                                        <Form.Group as={Row} controlId="formPlaintextNoHP">
-                                            <Form.Label column sm="2">
-                                                No. HP
-                                            </Form.Label>
-                                            <Col sm="10">
-                                                <Form.Control type="phone" placeholder="No. HP" name="phone" onChange={this.handlerOnChange} />
-                                            </Col>
-                                        </Form.Group>
-
-                                        <Form.Group as={Row} controlId="formPlaintextEmail">
-                                            <Form.Label column sm="2">
-                                                Email
-                                            </Form.Label>
-                                            <Col sm="10">
-                                                <Form.Control type="email" placeholder="Email" name="email" onChange={this.handlerOnChange} />
-                                            </Col>
-                                        </Form.Group>
-
-                                        <Form.Group as={Row} controlId="formFilterButton">
-                                            <Col className="justify-content-end d-flex">
-                                                <button className="btn btn-lg btn-primary">Filter</button>
-                                            </Col>
-                                        </Form.Group>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextNoHP"
+                                                   className="form-label col-form-label col-sm-2">No. HP</label>
+                                            <div className="col-sm-10">
+                                                <input placeholder="Isi no.HP disini" type="phone" id="phone" name="phone" className="form-control form-control"/>
+                                            </div>
+                                        </div>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextEmail"
+                                                   className="form-label col-form-label col-sm-2">Email</label>
+                                            <div className="col-sm-10">
+                                                <input placeholder="Isi email disini" type="email" id="email" name="email" className="form-control form-control"/>
+                                            </div>
+                                        </div>
+                                        <div className="justify-content-end d-flex">
+                                            <button className="btn btn-lg btn-success m-2" onClick={this.handleExportExcel}>Export Excel</button>
+                                            <button className="btn btn-lg btn-info m-2" onClick={()=>window.location.reload()}>Reset Filter</button>
+                                            <button className="btn btn-lg btn-primary m-2">Filter</button>
+                                        </div>
                                     </div>
-                                </Form>
+                                </form>
+                                <div className="summaryOfRegistrantData my-5 p-3 text-center border rounded border-primary">
+                                    <h4 className="mb-3"><b><u>Summary</u></b></h4>
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Jenis Test</th>
+                                            <th scope="col">Publish Fare</th>
+                                            <th scope="col">{this.state.invoice_title}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>SWAB</td>
+                                            <td id="swabPublishFare">
+                                                {myhelper.convertToRupiah(this.state.publish_fare_swab)}
+                                            </td>
+                                            <td id="swabTagihanVendor">
+                                                {myhelper.convertToRupiah(this.state.invoice_swab)}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>RAPID</td>
+                                            <td id="rapidPublishFare">
+                                                {myhelper.convertToRupiah(this.state.publish_fare_rapid)}
+                                            </td>
+                                            <td id="rapidTagihanVendor">
+                                                {myhelper.convertToRupiah(this.state.invoice_rapid)}
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <div className="table-responsive">
                                     <table className="table">
                                         <thead>
@@ -382,6 +555,7 @@ export class Registrant extends Component {
                                             <th>No.HP</th>
                                             <th>Jenis Test</th>
                                             <th>Publish Fare</th>
+                                            {vendorNameHeader}
                                             <th>Status</th>
                                         </tr>
                                         </thead>

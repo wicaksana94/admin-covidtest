@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import axios from "../axios/API";
+import axios from "../config/API";
 import {Link} from 'react-router-dom'
 
 export class Vendor extends Component {

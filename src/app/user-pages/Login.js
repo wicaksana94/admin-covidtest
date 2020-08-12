@@ -3,7 +3,7 @@ import {BrowserRouter} from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import ReactDOM from "react-dom";
 import App from '../../app/App';
-import axios from "../axios/API";
+import axios from "../config/API";
 import * as Swal from "sweetalert2";
 
 export class Login extends Component {
@@ -14,53 +14,76 @@ export class Login extends Component {
   handleLogin(event) {
     event.preventDefault();
     const data = new FormData(event.target);
-    axios({
-      method: 'post',
-      url: '/login',
-      data: data,
-    }).then(function (response) {
-        if (response.data.status===1){
-          // console.log(response.data.status)
+    let timerInterval
+    Swal.fire({
+      title: 'Please wait',
+      html: 'System will logging you in..',
+      timer: 5000,
+      timerProgressBar: false,
+      onBeforeOpen: () => {
+        Swal.showLoading()
+        timerInterval = setTimeout(() => {
           axios({
-            method: 'get',
-            url: '/getAuthorizedMenu/'+response.data.role_id,
+            method: 'post',
+            url: '/login',
+            data: data,
           }).then(function (response) {
-            localStorage.setItem("AuthorizedMenu", JSON.stringify(response.data));
-          })
-          Swal.fire(
-              'Login Berhasil',
-              'Anda sedang login sebagai '+response.data.role_name,
-              'success'
-          ).then(function (result) {
-            localStorage.setItem("loginStatus", true);
-            localStorage.setItem("fullName", response.data.fullname);
-            localStorage.setItem("roleID", response.data.role_id);
-            localStorage.setItem("roleName", response.data.role_name);
-            localStorage.setItem("phone", response.data.phone);
-            localStorage.setItem("email", response.data.email);
-            localStorage.setItem("menuAccess", response.data.menu_access);
-            // Check if user is vendor then assign localStorage vendorID
-            if (response.data.role_id === 3) {
-              localStorage.setItem("vendorID", response.data.id_vendor)
+            if (response.data.status===1){
+              // console.log(response.data.status)
+              axios({
+                method: 'get',
+                url: '/getAuthorizedMenu/'+response.data.role_id,
+              }).then(function (response) {
+                localStorage.setItem("AuthorizedMenu", JSON.stringify(response.data));
+              })
+              Swal.fire(
+                  'Login Berhasil',
+                  'Anda sedang login sebagai '+response.data.role_name,
+                  'success'
+              ).then(function (result) {
+                localStorage.setItem("loginStatus", true);
+                localStorage.setItem("fullName", response.data.fullname);
+                localStorage.setItem("roleID", response.data.role_id);
+                localStorage.setItem("roleName", response.data.role_name);
+                localStorage.setItem("phone", response.data.phone);
+                localStorage.setItem("email", response.data.email);
+                localStorage.setItem("menuAccess", response.data.menu_access);
+                // Check if user is vendor then assign localStorage vendorID
+                if (response.data.role_id === 3) {
+                  localStorage.setItem("vendorID", response.data.id_vendor)
+                }
+                ReactDOM.render(
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                    , document.getElementById('root'));
+              })
+            } else {
+              Swal.fire(
+                  'Error',
+                  response.data.message,
+                  'error'
+              )
+              return false
             }
-            ReactDOM.render(
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-                , document.getElementById('root'));
-          })
-        } else {
-          Swal.fire(
-              'Error',
-              response.data.message,
-              'error'
-          )
-          return false
-        }
-      })
-      .catch(err => {
-        // console.log(err);
-      });
+          }).catch(err => {
+            // console.log(err);
+          });
+        }, 1000)
+      },
+      onClose: () => {
+        clearInterval(timerInterval)
+      }
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.timer) {
+        Swal.fire(
+            'Error',
+            'Tidak dapat tersambung ke server. Harap periksa kembali koneksi internet Anda.',
+            'error'
+        )
+        return false
+      }
+    })
   }
 
   render() {
