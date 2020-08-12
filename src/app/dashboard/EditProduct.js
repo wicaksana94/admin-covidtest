@@ -18,14 +18,20 @@ class EditProduct extends Component {
     }
 
     componentDidMount() {
-        this.getVendor()
+        this.getVendorData()
         this.getProductById()
     }
 
-    getVendor() {
+    getVendorData() {
+        let url;
+        if(localStorage.getItem("vendorID") === null){
+            url = '/getAllVendor';
+        } else {
+            url = '/getVendor';
+        }
         axios.request({
             method: 'GET',
-            url: '/getVendor',
+            url: url,
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
@@ -39,6 +45,12 @@ class EditProduct extends Component {
             responseType: 'json'
         }).then(response => this.setState({
             product_details_data:response.data
+        })).then(response => this.state.product_details_data.map((product_details_data, index) => {
+            return this.setState({
+                product_id:product_details_data.city,
+                product_id_vendor:product_details_data.id_vendor,
+                product_name:product_details_data.name
+            })
         }))
     }
 
@@ -105,6 +117,19 @@ class EditProduct extends Component {
     }
 
     render() {
+        let vendorList =
+            <Form.Control as="select" name="id_vendor" >
+                {
+                    this.state.vendor_list.map((vendor_list, index) => {
+                        if (vendor_list.id === this.state.product_id_vendor) {
+                            return <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id} selected>{vendor_list.name}</option>
+                        } else {
+                            return <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id}>{vendor_list.name}</option>
+                        }
+                    })
+                }
+            </Form.Control>
+
         return (
             <div>
                 <div className="page-header">
@@ -133,11 +158,7 @@ class EditProduct extends Component {
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="vendor">Vendor</label>
-                                        <Form.Control as="select" name="id_vendor" >
-                                            {this.state.vendor_list.map(vendor_list => (
-                                                <option id={vendor_list.id} key={vendor_list.id} value={vendor_list.id}>{vendor_list.name}</option>
-                                            ))}
-                                        </Form.Control>
+                                        {vendorList}
                                     </div>
                                     <button type="submit" className="btn btn-primary mr-2">Simpan Perubahan</button>
                                 </form>
