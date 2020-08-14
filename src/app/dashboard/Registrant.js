@@ -483,6 +483,13 @@ export class Registrant extends Component {
                                             </div>
                                         </div>
                                         <div className="form-group row">
+                                            <label htmlFor="formPlaintextBookingCodeID"
+                                                   className="form-label col-form-label col-sm-2">ID</label>
+                                            <div className="col-sm-10">
+                                                <input placeholder="Isi ID kodebooking disini" type="idbookingcode" id="idbookingcode" name="idbookingcode" className="form-control form-control"/>
+                                            </div>
+                                        </div>
+                                        <div className="form-group row">
                                             <label htmlFor="formPlaintextNama"
                                                    className="form-label col-form-label col-sm-2">Nama</label>
                                             <div className="col-sm-10">
