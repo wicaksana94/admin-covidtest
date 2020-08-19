@@ -470,6 +470,7 @@ export class Registrant extends Component {
                     <td>{list_data.email}</td>
                     <td>{list_data.phone}</td>
                     <td>{list_data.test_covid}</td>
+                    <td>{list_data.test_clinic}</td>
                     <td>{myhelper.convertToRupiah(list_data.publish_fare)}</td>
                     {vendorName}
                     <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
@@ -563,7 +564,7 @@ export class Registrant extends Component {
                                     <table className="table">
                                         <thead>
                                         <tr>
-                                            <th scope="col">Jenis Test</th>
+                                            <th scope="col">Jenis</th>
                                             <th scope="col">Publish Fare</th>
                                             <th scope="col">{this.state.invoice_title}</th>
                                         </tr>
@@ -599,7 +600,8 @@ export class Registrant extends Component {
                                             <th>Nama</th>
                                             <th>Email</th>
                                             <th>No.HP</th>
-                                            <th>Jenis Test</th>
+                                            <th>Jenis</th>
+                                            <th>Klinik</th>
                                             <th>Publish Fare</th>
                                             {vendorNameHeader}
                                             <th>Status</th>
