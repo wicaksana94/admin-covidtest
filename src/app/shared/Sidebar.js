@@ -125,33 +125,14 @@ class Sidebar extends Component {
                       </div>
                     </div>
                   </Dropdown.Toggle>
-                  {/*<Dropdown.Menu className="preview-list navbar-dropdown">*/}
-                  {/*  <Dropdown.Item className="dropdown-item p-0 preview-item d-flex align-items-center" href="!#" onClick={evt =>evt.preventDefault()}>*/}
-                  {/*    <div className="d-flex">*/}
-                  {/*      <div className="py-3 px-4 d-flex align-items-center justify-content-center">*/}
-                  {/*        <i className="mdi mdi-bookmark-plus-outline mr-0"></i>*/}
-                  {/*      </div>*/}
-                  {/*      <div className="py-3 px-4 d-flex align-items-center justify-content-center border-left border-right">*/}
-                  {/*        <i className="mdi mdi-account-outline mr-0"></i>*/}
-                  {/*      </div>*/}
-                  {/*      <div className="py-3 px-4 d-flex align-items-center justify-content-center">*/}
-                  {/*        <i className="mdi mdi-alarm-check mr-0"></i>*/}
-                  {/*      </div>*/}
-                  {/*    </div>*/}
-                  {/*  </Dropdown.Item>*/}
-                  {/*  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center text-small" onClick={evt =>evt.preventDefault()}>*/}
-                  {/*    Manage Accounts*/}
-                  {/*  </Dropdown.Item>*/}
-                  {/*  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center text-small" onClick={evt =>evt.preventDefault()}>*/}
-                  {/*    Change Password*/}
-                  {/*  </Dropdown.Item>*/}
-                  {/*  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center text-small" onClick={evt =>evt.preventDefault()}>*/}
-                  {/*    Check Inbox*/}
-                  {/*  </Dropdown.Item>*/}
-                  {/*  <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center text-small" onClick={evt =>evt.preventDefault()}>*/}
-                  {/*    Sign Out*/}
-                  {/*  </Dropdown.Item>*/}
-                  {/*</Dropdown.Menu>*/}
+                  <Dropdown.Menu className="preview-list navbar-dropdown">
+                    <Link className="dropdown-item preview-item d-flex align-items-center text-small text-decoration-none text-dark" to="/my_profile">
+                      <span>My Profile</span>
+                    </Link>
+                    <Dropdown.Item className="dropdown-item preview-item d-flex align-items-center text-small" onClick={() => this.handleLogout()}>
+                      Logout
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
                 </Dropdown>
                 {/*<button className="btn btn-success btn-block">New Project <i className="mdi mdi-plus"></i></button>*/}
               </div>

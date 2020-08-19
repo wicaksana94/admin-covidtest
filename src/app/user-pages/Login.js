@@ -42,6 +42,7 @@ export class Login extends Component {
                   'success'
               ).then(function (result) {
                 localStorage.setItem("loginStatus", true);
+                localStorage.setItem("userID", response.data.user_id);
                 localStorage.setItem("fullName", response.data.fullname);
                 localStorage.setItem("roleID", response.data.role_id);
                 localStorage.setItem("roleName", response.data.role_name);
@@ -50,7 +51,8 @@ export class Login extends Component {
                 localStorage.setItem("menuAccess", response.data.menu_access);
                 // Check if user is vendor then assign localStorage vendorID
                 if (response.data.role_id === 3) {
-                  localStorage.setItem("vendorID", response.data.id_vendor)
+                  localStorage.setItem("vendorID", response.data.id_vendor);
+                  localStorage.setItem("vendorName", response.data.vendor_name)
                 }
                 ReactDOM.render(
                     <BrowserRouter>
