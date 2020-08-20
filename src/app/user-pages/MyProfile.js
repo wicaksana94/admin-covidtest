@@ -82,7 +82,11 @@ class MyProfile extends Component {
                         'Data tersimpan',
                         'Data pengguna telah tersimpan',
                         'success'
-                    ).then(result => {window.location.replace("/my_profile")})
+                    ).then(()=>{
+                        localStorage.setItem('fullName', data.get('fullname'));
+                        localStorage.setItem('phone', data.get('phone'));
+                        localStorage.setItem('email', data.get('email'));
+                    }).then(result => {window.location.replace("/my_profile")})
                 } else {
                     Swal.fire(
                         'Error',
