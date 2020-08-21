@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from '../config/API'
 import Swal from 'sweetalert2'
 import myhelper from '../helper/myhelper'
+import Select from 'react-select'
 
 export class Registrant extends Component {
     constructor(props) {
@@ -14,7 +15,8 @@ export class Registrant extends Component {
             publish_fare_rapid:[],
             invoice_swab:[],
             invoice_rapid:[],
-            invoice_title:[]
+            invoice_title:[],
+            clinic_list:[]
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
@@ -77,6 +79,16 @@ export class Registrant extends Component {
         }))
     }
 
+    getAllClinic() {
+        axios.request({
+            method: 'GET',
+            url: '/getAllClinic/',
+            responseType: 'json'
+        }).then(response => this.setState({
+            clinic_list:response.data
+        }))
+    }
+
     componentDidMount() {
         // Load first data
         this.getRegistrant()
@@ -84,6 +96,7 @@ export class Registrant extends Component {
         this.getSumFareRapid()
         this.getInvoiceSwab()
         this.getInvoiceRapid()
+        this.getAllClinic()
 
         if(localStorage.getItem('vendorID')){
             this.setState({
@@ -113,19 +126,23 @@ export class Registrant extends Component {
 
     handleExportExcel(event){
         event.preventDefault();
+        let idbookingcode = document.getElementById('idbookingcode').value;
         let name = document.getElementById('name').value;
         let phone = document.getElementById('phone').value;
         let email = document.getElementById('email').value;
         let test_date = document.getElementById('test_date').value;
+        let clinic_city = document.getElementsByName('clinic_city')[0].value;
 
         axios.request({
             method: 'POST',
             url: '/exportExcel/',
             data: {
+                idbookingcode: idbookingcode,
                 name: name,
                 phone: phone,
                 email: email,
-                test_date: test_date
+                test_date: test_date,
+                clinic_city: clinic_city
             },
             responseType: 'blob', // important
         }).then((response) => {
@@ -453,6 +470,7 @@ export class Registrant extends Component {
                     <td>{list_data.email}</td>
                     <td>{list_data.phone}</td>
                     <td>{list_data.test_covid}</td>
+                    <td>{list_data.test_clinic}</td>
                     <td>{myhelper.convertToRupiah(list_data.publish_fare)}</td>
                     {vendorName}
                     <td><label id={"status_"+list_data.id} className={badgeClass} onClick={() => changeStatus(list_data.id)} style={{cursor:"Pointer"}}>{status}</label></td>
@@ -465,6 +483,21 @@ export class Registrant extends Component {
         if (localStorage.getItem("vendorID") === null){
             vendorNameHeader = <th>Vendor</th>;
         }
+
+        // Set data dropdown clinic
+        let options_clinic_city = [];
+        this.state.clinic_list.map(function(clinic_list, index){
+            let value = `${clinic_list.name}_${clinic_list.city}`;
+            let label = `${clinic_list.name} (${clinic_list.city})`;
+
+            const entries = new Map([
+                ['value', value],
+                ['label', label]
+            ]);
+
+            const obj = Object.fromEntries(entries);
+            return options_clinic_city.push(obj)
+        })
 
         return (
             <div>
@@ -480,6 +513,13 @@ export class Registrant extends Component {
                                                    className="form-label col-form-label col-sm-2">Tanggal</label>
                                             <div className="col-lg-4 col-md-4 col-sm-10">
                                                 <input type="date" placeholder="Tanggal Rapid" id="test_date" name="test_date" className="form-control form-control-lg"/>
+                                            </div>
+                                        </div>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextBookingCodeID"
+                                                   className="form-label col-form-label col-sm-2">ID</label>
+                                            <div className="col-sm-10">
+                                                <input placeholder="Isi ID kodebooking disini" type="idbookingcode" id="idbookingcode" name="idbookingcode" className="form-control form-control"/>
                                             </div>
                                         </div>
                                         <div className="form-group row">
@@ -505,7 +545,14 @@ export class Registrant extends Component {
                                                 <input placeholder="Isi email disini" type="email" id="email" name="email" className="form-control form-control"/>
                                             </div>
                                         </div>
-                                        <div className="justify-content-end d-flex">
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextEmail"
+                                                   className="form-label col-form-label col-sm-2">Klinik/Kota</label>
+                                            <div className="col-sm-10">
+                                                <Select name="clinic_city" options={options_clinic_city} className="small" placeholder="Isi nama klinik atau kota disini" />
+                                            </div>
+                                        </div>
+                                        <div className="justify-content-end d-flex row">
                                             <button className="btn btn-lg btn-success m-2" onClick={this.handleExportExcel}>Export Excel</button>
                                             <button className="btn btn-lg btn-info m-2" onClick={()=>window.location.reload()}>Reset Filter</button>
                                             <button className="btn btn-lg btn-primary m-2">Filter</button>
@@ -517,7 +564,7 @@ export class Registrant extends Component {
                                     <table className="table">
                                         <thead>
                                         <tr>
-                                            <th scope="col">Jenis Test</th>
+                                            <th scope="col">Jenis</th>
                                             <th scope="col">Publish Fare</th>
                                             <th scope="col">{this.state.invoice_title}</th>
                                         </tr>
@@ -553,7 +600,8 @@ export class Registrant extends Component {
                                             <th>Nama</th>
                                             <th>Email</th>
                                             <th>No.HP</th>
-                                            <th>Jenis Test</th>
+                                            <th>Jenis</th>
+                                            <th>Klinik</th>
                                             <th>Publish Fare</th>
                                             {vendorNameHeader}
                                             <th>Status</th>

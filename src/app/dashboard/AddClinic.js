@@ -24,10 +24,16 @@ class AddClinic extends Component {
         }))
     }
 
-    getVendor() {
+    getVendorData() {
+        let url;
+        if(localStorage.getItem("vendorID") === null){
+            url = '/getAllVendor';
+        } else {
+            url = '/getVendor';
+        }
         axios.request({
             method: 'GET',
-            url: '/getVendor',
+            url: url,
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
@@ -36,7 +42,7 @@ class AddClinic extends Component {
 
     componentDidMount() {
         this.getCity()
-        this.getVendor()
+        this.getVendorData()
     }
 
     handleSubmit(event) {
