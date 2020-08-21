@@ -268,9 +268,17 @@ export class Registrant extends Component {
                         tr.appendChild(td_test_covid);
                     }
 
+                    async function doCreate_td_test_clinic() {
+                        var td_test_clinic = document.createElement("td");
+                        var test_clinic_node = document.createTextNode(list_data.test_clinic);
+                        td_test_clinic.appendChild(test_clinic_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_test_clinic);
+                    }
+
                     async function doCreate_td_publish_fare() {
                         var td_publish_fare = document.createElement("td");
-                        var publish_fare_node = document.createTextNode(list_data.publish_fare);
+                        var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(list_data.publish_fare));
                         td_publish_fare.appendChild(publish_fare_node);
                         var tr = document.getElementById("tr_"+list_data.id);
                         tr.appendChild(td_publish_fare);
@@ -371,6 +379,7 @@ export class Registrant extends Component {
                         await doCreate_td_email()
                         await doCreate_td_phone()
                         await doCreate_td_test_covid()
+                        await doCreate_td_test_clinic()
                         await doCreate_td_publish_fare()
                         await doCreate_td_vendor_name()
                         await doCreate_td_status()
