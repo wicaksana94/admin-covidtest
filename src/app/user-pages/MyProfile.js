@@ -14,6 +14,7 @@ class MyProfile extends Component {
             user_email: localStorage.getItem("email"),
             user_role_name: localStorage.getItem("roleName"),
             user_vendor_name: localStorage.getItem("vendorName"),
+            user_vendor_prefix: localStorage.getItem("vendorPrefix"),
             show: false
         };
 
@@ -126,6 +127,12 @@ class MyProfile extends Component {
             justifyContent: "flex-end"
         }
 
+        let vendorPrefix =
+            <div className="form-group">
+                <label htmlFor="fullname">Prefix</label>
+                <input value={this.state.user_vendor_prefix} className="form-control form-control" disabled/>
+            </div>
+
         return (
             <div>
                 <Modal show={this.state.show} onHide={this.handleClose} centered>
@@ -157,6 +164,7 @@ class MyProfile extends Component {
                                 <h5 className="mb-5" style={emailTextStyle}>{this.state.user_email}</h5>
                                 <form onSubmit={this.handleSubmit} className="row p-3">
                                     <div className="col-6">
+                                        {localStorage.getItem('vendorPrefix')!==null ? vendorPrefix : ''}
                                         <div className="form-group">
                                             <label htmlFor="fullname">Fullname</label>
                                             <input defaultValue={this.state.user_fullname} placeholder="Isi nama lengkap disini" type="text" id="fullname" name="fullname" className="form-control form-control"/>
