@@ -16,7 +16,8 @@ export class Registrant extends Component {
             invoice_swab:[],
             invoice_rapid:[],
             invoice_title:[],
-            clinic_list:[]
+            clinic_list:[],
+            vendor_list:[]
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
@@ -89,6 +90,16 @@ export class Registrant extends Component {
         }))
     }
 
+    getAllVendor() {
+        axios.request({
+            method: 'GET',
+            url: '/getAllVendor',
+            responseType: 'json'
+        }).then(response => this.setState({
+            vendor_list:response.data
+        }))
+    }
+
     componentDidMount() {
         // Load first data
         this.getRegistrant()
@@ -97,6 +108,7 @@ export class Registrant extends Component {
         this.getInvoiceSwab()
         this.getInvoiceRapid()
         this.getAllClinic()
+        this.getAllVendor()
 
         if(localStorage.getItem('vendorID')){
             this.setState({
@@ -256,9 +268,17 @@ export class Registrant extends Component {
                         tr.appendChild(td_test_covid);
                     }
 
+                    async function doCreate_td_test_clinic() {
+                        var td_test_clinic = document.createElement("td");
+                        var test_clinic_node = document.createTextNode(list_data.test_clinic);
+                        td_test_clinic.appendChild(test_clinic_node);
+                        var tr = document.getElementById("tr_"+list_data.id);
+                        tr.appendChild(td_test_clinic);
+                    }
+
                     async function doCreate_td_publish_fare() {
                         var td_publish_fare = document.createElement("td");
-                        var publish_fare_node = document.createTextNode(list_data.publish_fare);
+                        var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(list_data.publish_fare));
                         td_publish_fare.appendChild(publish_fare_node);
                         var tr = document.getElementById("tr_"+list_data.id);
                         tr.appendChild(td_publish_fare);
@@ -359,6 +379,7 @@ export class Registrant extends Component {
                         await doCreate_td_email()
                         await doCreate_td_phone()
                         await doCreate_td_test_covid()
+                        await doCreate_td_test_clinic()
                         await doCreate_td_publish_fare()
                         await doCreate_td_vendor_name()
                         await doCreate_td_status()
@@ -499,6 +520,33 @@ export class Registrant extends Component {
             return options_clinic_city.push(obj)
         })
 
+        // Set data dropdown vendor jika login sebagai admin
+        let options_vendor_list = [];
+        let vendorFilter;
+        if (localStorage.getItem("vendorID") === null){
+            this.state.vendor_list.map(function(vendor_list, index){
+                let value = `${vendor_list.id}`;
+                let label = `${vendor_list.name}`;
+
+                const entries = new Map([
+                    ['value', value],
+                    ['label', label]
+                ]);
+
+                const obj = Object.fromEntries(entries);
+                return options_vendor_list.push(obj)
+            })
+            vendorFilter =
+                <div className="form-group row">
+                    <label htmlFor="formPlaintextEmail"
+                           className="form-label col-form-label col-sm-2">Vendor</label>
+                    <div className="col-sm-10">
+                        <Select name="id_vendor" options={options_vendor_list} className="small" placeholder="Isi vendor disini" />
+                    </div>
+                </div>
+        }
+
+
         return (
             <div>
                 <div className="row">
@@ -529,6 +577,7 @@ export class Registrant extends Component {
                                                 <input placeholder="Isi nama disini" type="text" id="name" name="name" className="form-control form-control-lg"/>
                                             </div>
                                         </div>
+                                        {vendorFilter}
                                     </div>
                                     <div className="col-lg-6">
                                         <div className="form-group row">

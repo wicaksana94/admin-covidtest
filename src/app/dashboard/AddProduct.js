@@ -55,16 +55,22 @@ class AddProduct extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===201){
                     Swal.fire(
                         'Data tersimpan',
                         'Data produk telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/product")})
+                } else if (response.data.code){
+                    Swal.fire(
+                        'Error',
+                        response.data.message,
+                        'error'
+                    )
                 } else {
                     Swal.fire(
                         'Error',
-                        response.data,
+                        'Error unknown',
                         'error'
                     )
                 }
@@ -77,6 +83,17 @@ class AddProduct extends Component {
                     'error'
                 )
             });
+    }
+
+    onChangeOption(e){
+        document.getElementById("id")[0].setAttribute("disabled","1");
+        if (e.target.value === "RAPID"){
+            document.getElementById("name").value = "Rapid";
+        } else if (e.target.value === "SWAB"){
+            document.getElementById("name").value = "Swab";
+        } else {
+            document.getElementById("name").value = "";
+        }
     }
 
     render() {
@@ -97,8 +114,13 @@ class AddProduct extends Component {
                             <div className="card-body">
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
-                                        <label htmlFor="id">ID</label>
-                                        <input placeholder="Isi ID disini" type="text" id="id" name="id" className="form-control form-control"/>
+                                        <label htmlFor="id">Product</label>
+                                        <Form.Control as="select" size="sm" id="id" name="id" onClick={this.onChangeOption} >
+                                            {/*onClick={()=>{document.getElementById("id")[0].setAttribute("disabled","1");}}*/}
+                                            <option value="" default>Klik untuk memilih produk</option>
+                                            <option id="swab" key="swab" value="SWAB">SWAB</option>
+                                            <option id="rapid" key="rapid" value="RAPID">RAPID</option>
+                                        </Form.Control>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="name">Nama</label>

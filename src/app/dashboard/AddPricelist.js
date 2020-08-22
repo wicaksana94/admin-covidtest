@@ -112,7 +112,7 @@ class AddPricelist extends Component {
                                             <label htmlFor="id_product">ID Product</label>
                                             <Form.Control as="select" name="id_product">
                                                 {this.state.product_list.map(product_list => (
-                                                    <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name} - {product_list.vendor_name}</option>
+                                                    <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.id} ({product_list.vendor_name})</option>
                                                 ))}
                                             </Form.Control>
                                         </div>
