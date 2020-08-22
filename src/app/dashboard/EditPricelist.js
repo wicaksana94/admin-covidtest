@@ -176,9 +176,9 @@ class EditPricelist extends Component {
                 {
                     this.state.product_list.map((product_list, index) => {
                         if (product_list.id === this.state.pricelist_id_product) {
-                            return <option id={product_list.id} key={product_list.id} value={product_list.id} selected>{product_list.name} - {product_list.vendor_name}</option>
+                            return <option id={product_list.id} key={product_list.id} value={product_list.id} selected>{product_list.id} ({product_list.vendor_name})</option>
                         } else {
-                            return <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.name} - {product_list.vendor_name}</option>
+                            return <option id={product_list.id} key={product_list.id} value={product_list.id}>{product_list.id} ({product_list.vendor_name})</option>
                         }
                     })
                 }
