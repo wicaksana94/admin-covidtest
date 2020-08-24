@@ -210,6 +210,10 @@ export class Registrant extends Component {
                 data: data,
             })
                 .then(function (response) {
+                    // If data not found
+                    if(response.data.length===0){
+                        setTimeout(()=>Swal.close(), 1500)
+                    }
                     // replace existing tbody with filtered tbody
                     var existingTbody = document.getElementById("registrant-tbody");
                     var newTbody = document.createElement("tbody");
