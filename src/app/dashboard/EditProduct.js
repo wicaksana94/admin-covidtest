@@ -21,6 +21,15 @@ class EditProduct extends Component {
         this.getVendorData()
         this.getProductById()
         this.checkProductType()
+        this.disableSelectProduct()
+    }
+
+    disableSelectProduct(){
+        document.getElementById('id').setAttribute('disabled','')
+    }
+
+    enableSelectProduct(){
+        document.getElementById('id').removeAttribute('disabled','')
     }
 
     getVendorData() {
@@ -93,6 +102,7 @@ class EditProduct extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
+        this.enableSelectProduct();
         // console.log(event.target)
         const data = new FormData(event.target);
         data.append('id', this.state.id_edit);
