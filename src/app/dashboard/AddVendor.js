@@ -20,16 +20,22 @@ class AddVendor extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===201){
                     Swal.fire(
                         'Data tersimpan',
                         'Data vendor telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/vendor")})
+                } else if (response.data.code){
+                    Swal.fire(
+                        'Error',
+                        response.data.message,
+                        'error'
+                    )
                 } else {
                     Swal.fire(
                         'Error',
-                        response.data,
+                        'Error unknown',
                         'error'
                     )
                 }
