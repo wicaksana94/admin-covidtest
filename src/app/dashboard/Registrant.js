@@ -23,6 +23,12 @@ export class Registrant extends Component {
         this.handlerOnChange = this.handlerOnChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleExportExcel = this.handleExportExcel.bind(this);
+        this.reloadPage = this.reloadPage.bind(this);
+    }
+
+    reloadPage(event){
+        event.preventDefault();
+        return window.location.reload()
     }
 
     getRegistrant() {
@@ -637,7 +643,7 @@ export class Registrant extends Component {
                                         </div>
                                         <div className="flex-row-reverse d-flex row">
                                             <button className="btn btn-lg btn-primary m-2">Filter</button>
-                                            <button className="btn btn-lg btn-info m-2" onClick={()=>window.location.reload()}>Reset Filter</button>
+                                            <button className="btn btn-lg btn-info m-2" onClick={this.reloadPage}>Reset Filter</button>
                                             <button className="btn btn-lg btn-success m-2" onClick={this.handleExportExcel}>Export Excel</button>
                                         </div>
                                     </div>
