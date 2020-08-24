@@ -20,6 +20,16 @@ class EditProduct extends Component {
     componentDidMount() {
         this.getVendorData()
         this.getProductById()
+        this.checkProductType()
+        this.disableSelectProduct()
+    }
+
+    disableSelectProduct(){
+        document.getElementById('id').setAttribute('disabled','')
+    }
+
+    enableSelectProduct(){
+        document.getElementById('id').removeAttribute('disabled','')
     }
 
     getVendorData() {
@@ -80,8 +90,19 @@ class EditProduct extends Component {
 
     }
 
+    checkProductType(){
+        if (this.state.id_edit.includes("SWAB")){
+            document.getElementById("id").value = "SWAB";
+        } else if (this.state.id_edit.includes("RAPID")){
+            document.getElementById("id").value = "RAPID";
+        } else {
+            document.getElementById("id").value = "";
+        }
+    }
+
     handleSubmit(event) {
         event.preventDefault();
+        this.enableSelectProduct();
         // console.log(event.target)
         const data = new FormData(event.target);
         data.append('id', this.state.id_edit);
@@ -92,16 +113,28 @@ class EditProduct extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===204){
                     Swal.fire(
                         'Data tersimpan',
                         'Data produk telah tersimpan',
                         'success'
                     ).then(result => {window.location.replace("/product")})
+                } else if (response.data.code===309){
+                    Swal.fire(
+                        'Error',
+                        'Data yang Anda masukkan sudah ada, mohon cek ulang di menu Produk.',
+                        'error'
+                    )
+                } else if (response.data.code){
+                    Swal.fire(
+                        'Error',
+                        response.data.message,
+                        'error'
+                    )
                 } else {
                     Swal.fire(
                         'Error',
-                        response.data,
+                        'Error unknown',
                         'error'
                     )
                 }
@@ -114,6 +147,17 @@ class EditProduct extends Component {
                     'error'
                 )
             });
+    }
+
+    onChangeOption(e){
+        document.getElementById("id")[0].setAttribute("disabled","1");
+        if (e.target.value === "RAPID"){
+            document.getElementById("name").value = "Rapid";
+        } else if (e.target.value === "SWAB"){
+            document.getElementById("name").value = "Swab";
+        } else {
+            document.getElementById("name").value = "";
+        }
     }
 
     render() {
@@ -145,10 +189,13 @@ class EditProduct extends Component {
                                 {/*<h4 className="card-title">Menambahkan data produk</h4>*/}
                                 <form onSubmit={this.handleSubmit}>
                                     <div className="form-group">
-                                        <label htmlFor="id">ID</label>
-                                        {this.state.product_details_data.map(product_details_data => (
-                                            <input placeholder="Isi ID disini" type="text" id="id" name="id" className="form-control form-control" defaultValue={product_details_data.id} key={product_details_data.id}/>
-                                        ))}
+                                        <label htmlFor="id">Product</label>
+                                        <Form.Control as="select" size="sm" id="id" name="id" onClick={this.onChangeOption} readonly>
+                                            {/*onClick={()=>{document.getElementById("id")[0].setAttribute("disabled","1");}}*/}
+                                            <option value="" default>Klik untuk memilih produk</option>
+                                            <option id="swab" key="swab" value="SWAB">SWAB</option>
+                                            <option id="rapid" key="rapid" value="RAPID">RAPID</option>
+                                        </Form.Control>
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="name">Nama</label>

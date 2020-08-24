@@ -23,6 +23,12 @@ export class Registrant extends Component {
         this.handlerOnChange = this.handlerOnChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleExportExcel = this.handleExportExcel.bind(this);
+        this.reloadPage = this.reloadPage.bind(this);
+    }
+
+    reloadPage(event){
+        event.preventDefault();
+        return window.location.reload()
     }
 
     getRegistrant() {
@@ -90,10 +96,16 @@ export class Registrant extends Component {
         }))
     }
 
-    getAllVendor() {
+    getVendorData() {
+        let url;
+        if(localStorage.getItem("vendorID") === null){
+            url = '/getAllVendor';
+        } else {
+            url = '/getVendor';
+        }
         axios.request({
             method: 'GET',
-            url: '/getAllVendor',
+            url: url,
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
@@ -108,7 +120,7 @@ export class Registrant extends Component {
         this.getInvoiceSwab()
         this.getInvoiceRapid()
         this.getAllClinic()
-        this.getAllVendor()
+        this.getVendorData()
 
         if(localStorage.getItem('vendorID')){
             this.setState({
@@ -145,28 +157,38 @@ export class Registrant extends Component {
         let test_date = document.getElementById('test_date').value;
         let clinic_city = document.getElementsByName('clinic_city')[0].value;
 
-        axios.request({
-            method: 'POST',
-            url: '/exportExcel/',
-            data: {
-                idbookingcode: idbookingcode,
-                name: name,
-                phone: phone,
-                email: email,
-                test_date: test_date,
-                clinic_city: clinic_city
-            },
-            responseType: 'blob', // important
-        }).then((response) => {
-            const timestampNow = String(new Date().valueOf()).substr(-10)
-            const filename = 'ExportExcel_'+timestampNow;
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', filename+'.xlsx'); //or any other extension
-            document.body.appendChild(link);
-            link.click();
-        });
+        Swal.fire({
+            title: 'Exporting the data',
+            icon: 'info',
+            html: 'Please wait..',
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            }
+        }).then(
+            axios.request({
+                method: 'POST',
+                url: '/exportExcel/',
+                data: {
+                    idbookingcode: idbookingcode,
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    test_date: test_date,
+                    clinic_city: clinic_city
+                },
+                responseType: 'blob', // important
+            }).then((response) => {
+                const timestampNow = String(new Date().valueOf()).substr(-10)
+                const filename = 'ExportExcel_'+timestampNow;
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', filename+'.xlsx'); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+            }).then(setTimeout(()=>Swal.close(), 1500))
+        )
+
     }
 
     handleSubmit(event) {
@@ -180,237 +202,252 @@ export class Registrant extends Component {
         let invoiceSwab = 0;
         let invoiceRapid = 0;
 
-        axios({
-            method: 'post',
-            url: '/postFilterRegistrantData',
-            data: data,
-        })
-            .then(function (response) {
-                // replace existing tbody with filtered tbody
-                var existingTbody = document.getElementById("registrant-tbody");
-                var newTbody = document.createElement("tbody");
-                newTbody.setAttribute("id", "registrant-tbody");
-                existingTbody.parentNode.replaceChild(newTbody, existingTbody)
-
-                response.data.map(function(list_data){
-                    let badgeClass;
-                    let status;
-
-                    if(list_data.registrant_status==="0") {
-                        badgeClass = "badge badge-danger";
-                        status = "Belum";
-                    } else {
-                        badgeClass = "badge badge-success";
-                        status = "Sudah";
+        Swal.fire({
+            title: 'Filtering the data',
+            icon: 'info',
+            html: 'Please wait..',
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            }
+        }).then(
+            axios({
+                method: 'post',
+                url: '/postFilterRegistrantData',
+                data: data,
+            })
+                .then(function (response) {
+                    // If data not found
+                    if(response.data.length===0){
+                        setTimeout(()=>Swal.close(), 1500)
                     }
+                    // replace existing tbody with filtered tbody
+                    var existingTbody = document.getElementById("registrant-tbody");
+                    var newTbody = document.createElement("tbody");
+                    newTbody.setAttribute("id", "registrant-tbody");
+                    existingTbody.parentNode.replaceChild(newTbody, existingTbody)
 
-                    // Re-create summary data based on the response
-                    if (list_data.id_product==='SWB') {
-                        newSumFareSwab += Number(list_data.publish_fare)
-                        counterSwab++
-                    } else if(list_data.id_product==='RPD') {
-                        newSumFareRapid += Number(list_data.publish_fare)
-                        counterRapid++
-                    }
+                    response.data.map(function(list_data){
+                        let badgeClass;
+                        let status;
 
-                    async function doCreate_tr() {
-                        var tr = document.createElement("tr");
-                        tr.setAttribute("id", "tr_"+list_data.id);
-                        var existingTbody = document.getElementById("registrant-tbody");
-                        existingTbody.appendChild(tr);
-                    }
-
-                    async function doCreate_td_id() {
-                        var td_id = document.createElement("td");
-                        var td_id_node = document.createTextNode(list_data.id);
-                        td_id.appendChild(td_id_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_id);
-                    }
-
-                    async function doCreate_td_test_date() {
-                        var td_test_date = document.createElement("td");
-                        var test_date_node = document.createTextNode(list_data.test_date);
-                        td_test_date.appendChild(test_date_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_test_date);
-                    }
-
-                    async function doCreate_td_name() {
-                        var td_name = document.createElement("td");
-                        var name_node = document.createTextNode(list_data.name);
-                        td_name.appendChild(name_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_name);
-                    }
-
-                    async function doCreate_td_email() {
-                        var td_email = document.createElement("td");
-                        var email_node = document.createTextNode(list_data.email);
-                        td_email.appendChild(email_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_email);
-                    }
-
-                    async function doCreate_td_phone() {
-                        var td_phone = document.createElement("td");
-                        var phone_node = document.createTextNode(list_data.phone);
-                        td_phone.appendChild(phone_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_phone);
-                    }
-
-                    async function doCreate_td_test_covid() {
-                        var td_test_covid = document.createElement("td");
-                        var test_covid_node = document.createTextNode(list_data.test_covid);
-                        td_test_covid.appendChild(test_covid_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_test_covid);
-                    }
-
-                    async function doCreate_td_test_clinic() {
-                        var td_test_clinic = document.createElement("td");
-                        var test_clinic_node = document.createTextNode(list_data.test_clinic);
-                        td_test_clinic.appendChild(test_clinic_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_test_clinic);
-                    }
-
-                    async function doCreate_td_publish_fare() {
-                        var td_publish_fare = document.createElement("td");
-                        var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(list_data.publish_fare));
-                        td_publish_fare.appendChild(publish_fare_node);
-                        var tr = document.getElementById("tr_"+list_data.id);
-                        tr.appendChild(td_publish_fare);
-                    }
-
-                    async function doCreate_td_status() {
-                        // make badge label
-                        var label_status = document.createElement("label");
-                        label_status.setAttribute("class", badgeClass);
-                        label_status.setAttribute("id", "status_"+list_data.id);
-                        label_status.onclick = function () {
-                            changeStatus(list_data.id)
-                        };
-
-                        // change cursor to pointer when hover
-                        label_status.style.cursor = "pointer";
-
-                        // add status text to badge label
-                        var status_node = document.createTextNode(status);
-                        label_status.appendChild(status_node);
-
-                        // make td status
-                        var td_status = document.createElement("td");
-                        td_status.appendChild(label_status);
-                        var tr = document.getElementById("tr_"+list_data.id);
-
-                        tr.appendChild(td_status);
-                    }
-
-                    async function doCreate_td_vendor_name() {
-                        if (localStorage.getItem("vendorID") === null) {
-                            var td_vendor_name = document.createElement("td");
-                            var vendor_name_node = document.createTextNode(list_data.vendor_name);
-                            td_vendor_name.appendChild(vendor_name_node);
-                            var tr = document.getElementById("tr_" + list_data.id);
-                            tr.appendChild(td_vendor_name);
+                        if(list_data.registrant_status==="0") {
+                            badgeClass = "badge badge-danger";
+                            status = "Belum";
+                        } else {
+                            badgeClass = "badge badge-success";
+                            status = "Sudah";
                         }
-                    }
 
-                    function changeStatus(id){
-                        console.log(id)
-                        Swal.fire({
-                            title: 'Apakah Anda yakin mengubah status?',
-                            // text: "helo "+list_data.id,
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Ya',
-                            cancelButtonText: 'Tidak',
-                        }).then(result=> {
-                            if (result.value) {
-                                const data = new FormData();
-                                data.set("id_registrant",id)
+                        // Re-create summary data based on the response
+                        if (list_data.id_product.includes('SWAB')) {
+                            newSumFareSwab += Number(list_data.publish_fare)
+                            counterSwab++
+                        } else if(list_data.id_product.includes('RAPID')) {
+                            newSumFareRapid += Number(list_data.publish_fare)
+                            counterRapid++
+                        }
 
-                                axios({
-                                    method: 'post',
-                                    url: '/updateRegistrantStatus',
-                                    data: data,
-                                })
-                                    .then(res => {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Berhasil',
-                                            text: 'Status berhasil diubah.'
-                                        }).then(response => {
-                                            if (res.data.status===1 && res.data.new_status==="Belum") {
-                                                let existingStatusBanner = document.getElementById("status_"+list_data.id);
-                                                existingStatusBanner.className = "badge badge-danger";
-                                                existingStatusBanner.innerHTML = 'Belum';
-                                            } else if (res.data.status===1 && res.data.new_status==="Sudah") {
-                                                let existingStatusBanner = document.getElementById("status_"+list_data.id);
-                                                existingStatusBanner.className = "badge badge-success";
-                                                existingStatusBanner.innerHTML = 'Sudah';
-                                            } else {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Error',
-                                                    text: 'Terjadi eror, harap coba beberapa saat lagi.'
-                                                })
-                                            }
-                                        })
+                        async function doCreate_tr() {
+                            var tr = document.createElement("tr");
+                            tr.setAttribute("id", "tr_"+list_data.id);
+                            var existingTbody = document.getElementById("registrant-tbody");
+                            existingTbody.appendChild(tr);
+                        }
 
-                                    })
-                                    .catch(err => {
-                                        // console.log(err);
-                                    });
+                        async function doCreate_td_id() {
+                            var td_id = document.createElement("td");
+                            var td_id_node = document.createTextNode(list_data.id);
+                            td_id.appendChild(td_id_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_id);
+                        }
+
+                        async function doCreate_td_test_date() {
+                            var td_test_date = document.createElement("td");
+                            var test_date_node = document.createTextNode(list_data.test_date);
+                            td_test_date.appendChild(test_date_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_test_date);
+                        }
+
+                        async function doCreate_td_name() {
+                            var td_name = document.createElement("td");
+                            var name_node = document.createTextNode(list_data.name);
+                            td_name.appendChild(name_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_name);
+                        }
+
+                        async function doCreate_td_email() {
+                            var td_email = document.createElement("td");
+                            var email_node = document.createTextNode(list_data.email);
+                            td_email.appendChild(email_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_email);
+                        }
+
+                        async function doCreate_td_phone() {
+                            var td_phone = document.createElement("td");
+                            var phone_node = document.createTextNode(list_data.phone);
+                            td_phone.appendChild(phone_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_phone);
+                        }
+
+                        async function doCreate_td_test_covid() {
+                            var td_test_covid = document.createElement("td");
+                            var test_covid_node = document.createTextNode(list_data.test_covid);
+                            td_test_covid.appendChild(test_covid_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_test_covid);
+                        }
+
+                        async function doCreate_td_test_clinic() {
+                            var td_test_clinic = document.createElement("td");
+                            var test_clinic_node = document.createTextNode(list_data.test_clinic);
+                            td_test_clinic.appendChild(test_clinic_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_test_clinic);
+                        }
+
+                        async function doCreate_td_publish_fare() {
+                            var td_publish_fare = document.createElement("td");
+                            var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(list_data.publish_fare));
+                            td_publish_fare.appendChild(publish_fare_node);
+                            var tr = document.getElementById("tr_"+list_data.id);
+                            tr.appendChild(td_publish_fare);
+                        }
+
+                        async function doCreate_td_status() {
+                            // make badge label
+                            var label_status = document.createElement("label");
+                            label_status.setAttribute("class", badgeClass);
+                            label_status.setAttribute("id", "status_"+list_data.id);
+                            label_status.onclick = function () {
+                                changeStatus(list_data.id)
+                            };
+
+                            // change cursor to pointer when hover
+                            label_status.style.cursor = "pointer";
+
+                            // add status text to badge label
+                            var status_node = document.createTextNode(status);
+                            label_status.appendChild(status_node);
+
+                            // make td status
+                            var td_status = document.createElement("td");
+                            td_status.appendChild(label_status);
+                            var tr = document.getElementById("tr_"+list_data.id);
+
+                            tr.appendChild(td_status);
+                        }
+
+                        async function doCreate_td_vendor_name() {
+                            if (localStorage.getItem("vendorID") === null) {
+                                var td_vendor_name = document.createElement("td");
+                                var vendor_name_node = document.createTextNode(list_data.vendor_name);
+                                td_vendor_name.appendChild(vendor_name_node);
+                                var tr = document.getElementById("tr_" + list_data.id);
+                                tr.appendChild(td_vendor_name);
                             }
-                        })
-                    }
+                        }
 
-                    // fill the table with new data from filter
-                    async function populateFilteredData(){
-                        await doCreate_tr()
-                        await doCreate_td_id()
-                        await doCreate_td_test_date()
-                        await doCreate_td_name()
-                        await doCreate_td_email()
-                        await doCreate_td_phone()
-                        await doCreate_td_test_covid()
-                        await doCreate_td_test_clinic()
-                        await doCreate_td_publish_fare()
-                        await doCreate_td_vendor_name()
-                        await doCreate_td_status()
-                    }
+                        function changeStatus(id){
+                            console.log(id)
+                            Swal.fire({
+                                title: 'Apakah Anda yakin mengubah status?',
+                                // text: "helo "+list_data.id,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ya',
+                                cancelButtonText: 'Tidak',
+                            }).then(result=> {
+                                if (result.value) {
+                                    const data = new FormData();
+                                    data.set("id_registrant",id)
 
-                    return populateFilteredData()
-                });
+                                    axios({
+                                        method: 'post',
+                                        url: '/updateRegistrantStatus',
+                                        data: data,
+                                    })
+                                        .then(res => {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Berhasil',
+                                                text: 'Status berhasil diubah.'
+                                            }).then(response => {
+                                                if (res.data.status===1 && res.data.new_status==="Belum") {
+                                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                    existingStatusBanner.className = "badge badge-danger";
+                                                    existingStatusBanner.innerHTML = 'Belum';
+                                                } else if (res.data.status===1 && res.data.new_status==="Sudah") {
+                                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                    existingStatusBanner.className = "badge badge-success";
+                                                    existingStatusBanner.innerHTML = 'Sudah';
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: 'Terjadi eror, harap coba beberapa saat lagi.'
+                                                    })
+                                                }
+                                            })
 
-            })
-            .then(function doReCreateSummary() {
-                axios({
-                    method: 'get',
-                    url: '/getSwabPricelistByTotalRegistrant/'+counterSwab,
-                }).then(function(response){
-                    invoiceSwab = response.data;
-                    document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
-                    document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
+                                        })
+                                        .catch(err => {
+                                            // console.log(err);
+                                        });
+                                }
+                            })
+                        }
+
+                        // fill the table with new data from filter
+                        async function populateFilteredData(){
+                            await doCreate_tr()
+                            await doCreate_td_id()
+                            await doCreate_td_test_date()
+                            await doCreate_td_name()
+                            await doCreate_td_email()
+                            await doCreate_td_phone()
+                            await doCreate_td_test_covid()
+                            await doCreate_td_test_clinic()
+                            await doCreate_td_publish_fare()
+                            await doCreate_td_vendor_name()
+                            await doCreate_td_status()
+
+                            setTimeout(()=>Swal.close(), 1500)
+                        }
+
+                        return populateFilteredData()
+                    });
+
                 })
+                .then(function doReCreateSummary() {
+                    axios({
+                        method: 'get',
+                        url: '/getSwabPricelistByTotalRegistrant/'+counterSwab,
+                    }).then(function(response){
+                        invoiceSwab = response.data;
+                        document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
+                        document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
+                    })
 
-                axios({
-                    method: 'get',
-                    url: '/getRapidPricelistByTotalRegistrant/'+counterRapid,
-                }).then(function(response){
-                    invoiceRapid = response.data;
-                    document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
-                    document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
+                    axios({
+                        method: 'get',
+                        url: '/getRapidPricelistByTotalRegistrant/'+counterRapid,
+                    }).then(function(response){
+                        invoiceRapid = response.data;
+                        document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
+                        document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
+                    })
                 })
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+                .catch(function (error) {
+                    console.log(error);
+                })
+        )
     }
 
 
@@ -546,6 +583,12 @@ export class Registrant extends Component {
                 </div>
         }
 
+        // Set option dropdown filter status
+        const options_registrant_status = [
+            { value: '0', label: 'Belum' },
+            { value: '1', label: 'Sudah' }
+        ]
+
 
         return (
             <div>
@@ -601,10 +644,17 @@ export class Registrant extends Component {
                                                 <Select name="clinic_city" options={options_clinic_city} className="small" placeholder="Isi nama klinik atau kota disini" />
                                             </div>
                                         </div>
-                                        <div className="justify-content-end d-flex row">
-                                            <button className="btn btn-lg btn-success m-2" onClick={this.handleExportExcel}>Export Excel</button>
-                                            <button className="btn btn-lg btn-info m-2" onClick={()=>window.location.reload()}>Reset Filter</button>
+                                        <div className="form-group row">
+                                            <label htmlFor="formPlaintextEmail"
+                                                   className="form-label col-form-label col-sm-2">Status</label>
+                                            <div className="col-sm-10">
+                                                <Select name="registrant_status" options={options_registrant_status} className="small" placeholder="Isi status disini" />
+                                            </div>
+                                        </div>
+                                        <div className="flex-row-reverse d-flex row">
                                             <button className="btn btn-lg btn-primary m-2">Filter</button>
+                                            <button className="btn btn-lg btn-info m-2" onClick={this.reloadPage}>Reset Filter</button>
+                                            <button className="btn btn-lg btn-success m-2" onClick={this.handleExportExcel}>Export Excel</button>
                                         </div>
                                     </div>
                                 </form>
