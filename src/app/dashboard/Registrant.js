@@ -96,10 +96,16 @@ export class Registrant extends Component {
         }))
     }
 
-    getAllVendor() {
+    getVendorData() {
+        let url;
+        if(localStorage.getItem("vendorID") === null){
+            url = '/getAllVendor';
+        } else {
+            url = '/getVendor';
+        }
         axios.request({
             method: 'GET',
-            url: '/getAllVendor',
+            url: url,
             responseType: 'json'
         }).then(response => this.setState({
             vendor_list:response.data
@@ -114,7 +120,7 @@ export class Registrant extends Component {
         this.getInvoiceSwab()
         this.getInvoiceRapid()
         this.getAllClinic()
-        this.getAllVendor()
+        this.getVendorData()
 
         if(localStorage.getItem('vendorID')){
             this.setState({
