@@ -154,8 +154,10 @@ export class Registrant extends Component {
         let name = document.getElementById('name').value;
         let phone = document.getElementById('phone').value;
         let email = document.getElementById('email').value;
+        let id_vendor = document.getElementsByName('id_vendor')[0].value;
         let test_date = document.getElementById('test_date').value;
         let clinic_city = document.getElementsByName('clinic_city')[0].value;
+        let registrant_status = document.getElementsByName('registrant_status')[0].value;
 
         Swal.fire({
             title: 'Exporting the data',
@@ -173,8 +175,10 @@ export class Registrant extends Component {
                     name: name,
                     phone: phone,
                     email: email,
+                    id_vendor: id_vendor,
                     test_date: test_date,
-                    clinic_city: clinic_city
+                    clinic_city: clinic_city,
+                    registrant_status: registrant_status
                 },
                 responseType: 'blob', // important
             }).then((response) => {
