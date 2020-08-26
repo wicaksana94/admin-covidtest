@@ -112,6 +112,16 @@ export class Registrant extends Component {
         }))
     }
 
+    getAllClinicByVendorId(id) {
+        axios.request({
+            method: 'GET',
+            url: '/getAllClinicByVendorId/'+id,
+            responseType: 'json'
+        }).then(response => this.setState({
+            clinic_list:response.data
+        }))
+    }
+
     componentDidMount() {
         // Load first data
         this.getRegistrant()
@@ -454,6 +464,10 @@ export class Registrant extends Component {
         )
     }
 
+    handleChangeClinic = (selectedOption) => {
+        let id_vendor = selectedOption.value;
+        this.getAllClinicByVendorId(id_vendor);
+    }
 
     render() {
         let registrantData = this.state.list_data.map(function(list_data, index){
@@ -582,7 +596,7 @@ export class Registrant extends Component {
                     <label htmlFor="formPlaintextEmail"
                            className="form-label col-form-label col-sm-2">Vendor</label>
                     <div className="col-sm-10">
-                        <Select name="id_vendor" options={options_vendor_list} className="small" placeholder="Isi vendor disini" />
+                        <Select name="id_vendor" options={options_vendor_list} className="small" placeholder="Isi vendor disini" onChange={this.handleChangeClinic}/>
                     </div>
                 </div>
         }
