@@ -1,4 +1,8 @@
 exports.convertToRupiah = (number) => {
+    if(number === "undefined" || number === null) {
+        return 0
+    }
+
     if (number) {
         let rupiah = "";
         let numberrev = number.toString().split("").reverse().join("");
