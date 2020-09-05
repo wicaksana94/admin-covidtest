@@ -33,13 +33,237 @@ export class Registrant extends Component {
             invoice_rapid:[],
             invoice_title:[],
             clinic_list:[],
-            vendor_list:[]
+            vendor_list:[],
+            is_filter: false,
+            filtered_list_data:[],
+            newSumFareSwab: 0,
+            newSumFareRapid: 0,
+            counterSwab: 0,
+            counterRapid: 0,
+            invoiceSwab: 0,
+            invoiceRapid: 0
         };
 
         this.handlerOnChange = this.handlerOnChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleExportExcel = this.handleExportExcel.bind(this);
         this.reloadPage = this.reloadPage.bind(this);
+        this.getInvoiceRapid = this.getInvoiceRapid.bind(this);
+        this.getInvoiceSwab = this.getInvoiceSwab.bind(this);
+    }
+
+    pushMsg(new_data) {
+        if(this.state.is_filter===true){
+            let messageContent = `Ada data baru dengan ID: ${new_data.id}. Klik disini untuk melihat.`;
+            notify(messageContent);
+        } else {
+            let badgeClass;
+            let status;
+            if(new_data.registrant_status==="0") {
+                badgeClass = "badge badge-danger";
+                status = "Belum";
+            } else {
+                badgeClass = "badge badge-success";
+                status = "Sudah";
+            }
+
+            if (new_data.id_product.includes('SWAB')) {
+                this.setState({
+                    publish_fare_swab: Number(this.state.publish_fare_swab) + Number(new_data.publish_fare)
+                })
+            } else if(new_data.id_product.includes('RAPID')) {
+                this.setState({
+                    publish_fare_rapid: Number(this.state.publish_fare_rapid) + Number(new_data.publish_fare)
+                })
+            }
+
+            this.getInvoiceRapid()
+            this.getInvoiceSwab()
+
+            async function doCreate_tr() {
+                var tr = document.createElement("tr");
+                tr.setAttribute("id", "tr_"+new_data.id);
+                var existingTbody = document.getElementById("registrant-tbody");
+                existingTbody.prepend(tr);
+            }
+
+            async function doCreate_td_id() {
+                var td_id = document.createElement("td");
+                var td_id_node = document.createTextNode(new_data.id);
+                td_id.appendChild(td_id_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_id);
+            }
+
+            async function doCreate_td_test_date() {
+                var td_test_date = document.createElement("td");
+                var test_date_node = document.createTextNode(new_data.test_date);
+                td_test_date.appendChild(test_date_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_test_date);
+            }
+
+            async function doCreate_td_name() {
+                var td_name = document.createElement("td");
+                var name_node = document.createTextNode(new_data.name);
+                td_name.appendChild(name_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_name);
+            }
+
+            async function doCreate_td_email() {
+                var td_email = document.createElement("td");
+                var email_node = document.createTextNode(new_data.email);
+                td_email.appendChild(email_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_email);
+            }
+
+            async function doCreate_td_phone() {
+                var td_phone = document.createElement("td");
+                var phone_node = document.createTextNode(new_data.phone);
+                td_phone.appendChild(phone_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_phone);
+            }
+
+            async function doCreate_td_test_covid() {
+                var td_test_covid = document.createElement("td");
+                var test_covid_node = document.createTextNode(new_data.test_covid);
+                td_test_covid.appendChild(test_covid_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_test_covid);
+            }
+
+            async function doCreate_td_test_clinic() {
+                var td_test_clinic = document.createElement("td");
+                var test_clinic_node = document.createTextNode(new_data.test_clinic);
+                td_test_clinic.appendChild(test_clinic_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_test_clinic);
+            }
+
+            async function doCreate_td_publish_fare() {
+                var td_publish_fare = document.createElement("td");
+                var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(new_data.publish_fare));
+                td_publish_fare.appendChild(publish_fare_node);
+                var tr = document.getElementById("tr_"+new_data.id);
+                tr.appendChild(td_publish_fare);
+            }
+
+            async function doCreate_td_status() {
+                // make badge label
+                var label_status = document.createElement("label");
+                label_status.setAttribute("class", badgeClass);
+                label_status.setAttribute("id", "status_"+new_data.id);
+                label_status.onclick = function () {
+                    changeStatus(new_data.id)
+                };
+
+                // change cursor to pointer when hover
+                label_status.style.cursor = "pointer";
+
+                // add status text to badge label
+                var status_node = document.createTextNode(status);
+                label_status.appendChild(status_node);
+
+                // make td status
+                var td_status = document.createElement("td");
+                td_status.appendChild(label_status);
+                var tr = document.getElementById("tr_"+new_data.id);
+
+                tr.appendChild(td_status);
+            }
+
+            async function doCreate_td_vendor_name() {
+                if (localStorage.getItem("vendorID") === null) {
+                    var td_vendor_name = document.createElement("td");
+                    var vendor_name_node = document.createTextNode(new_data.vendor_name);
+                    td_vendor_name.appendChild(vendor_name_node);
+                    var tr = document.getElementById("tr_" + new_data.id);
+                    tr.appendChild(td_vendor_name);
+                }
+            }
+
+            async function makeHighlight(){
+                document.getElementById("tr_"+new_data.id).classList.add("bg-warning");
+            }
+
+            async function removeHighlight(){
+                setTimeout(()=>document.getElementById("tr_"+new_data.id).classList.remove("bg-warning"), 1500)
+            }
+
+            function changeStatus(id){
+                console.log(id)
+                Swal.fire({
+                    title: 'Apakah Anda yakin mengubah status?',
+                    // text: "helo "+new_data.id,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                }).then(result=> {
+                    if (result.value) {
+                        const data = new FormData();
+                        data.set("id_registrant",id)
+
+                        axios({
+                            method: 'post',
+                            url: '/updateRegistrantStatus',
+                            data: data,
+                        })
+                            .then(res => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Status berhasil diubah.'
+                                }).then(response => {
+                                    if (res.data.status===1 && res.data.new_status==="Belum") {
+                                        let existingStatusBanner = document.getElementById("status_"+new_data.id);
+                                        existingStatusBanner.className = "badge badge-danger";
+                                        existingStatusBanner.innerHTML = 'Belum';
+                                    } else if (res.data.status===1 && res.data.new_status==="Sudah") {
+                                        let existingStatusBanner = document.getElementById("status_"+new_data.id);
+                                        existingStatusBanner.className = "badge badge-success";
+                                        existingStatusBanner.innerHTML = 'Sudah';
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'Terjadi eror, harap coba beberapa saat lagi.'
+                                        })
+                                    }
+                                })
+
+                            })
+                            .catch(err => {
+                                // console.log(err);
+                            });
+                    }
+                })
+            }
+
+            // fill the table with new data from filter
+            async function populateFilteredData(){
+                await doCreate_tr()
+                await doCreate_td_id()
+                await doCreate_td_test_date()
+                await doCreate_td_name()
+                await doCreate_td_email()
+                await doCreate_td_phone()
+                await doCreate_td_test_covid()
+                await doCreate_td_test_clinic()
+                await doCreate_td_publish_fare()
+                await doCreate_td_vendor_name()
+                await doCreate_td_status()
+                await makeHighlight()
+                await removeHighlight()
+            }
+
+            return populateFilteredData()
+        }
     }
 
     reloadPage(event){
@@ -148,6 +372,10 @@ export class Registrant extends Component {
         this.getAllClinic()
         this.getVendorData()
 
+        //Listen for data on the "outgoing data" namespace and supply a callback for what to do when we get one. In this case, we set a state variable
+        socket.on("outgoing data", data => this.setState({response: data.id}));
+        socket.on("outgoing data", data => this.pushMsg(data));
+
         if(localStorage.getItem('vendorID')){
             this.setState({
                 invoice_title: "Tagihan dari Pointer"
@@ -223,14 +451,16 @@ export class Registrant extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
+        this.setState({is_filter: true});
         const data = new FormData(event.target);
-
         let newSumFareSwab=0;
         let newSumFareRapid=0;
         let counterSwab=0;
         let counterRapid=0;
         let invoiceSwab = 0;
         let invoiceRapid = 0;
+        let badgeClass;
+        let status;
 
         Swal.fire({
             title: 'Filtering the data',
@@ -248,7 +478,11 @@ export class Registrant extends Component {
                 .then(function (response) {
                     // If data not found
                     if(response.data.length===0){
-                        setTimeout(()=>Swal.close(), 1500)
+                        document.getElementById('swabPublishFare').innerHTML = 0
+                        document.getElementById('swabTagihanVendor').innerHTML = 0
+                        document.getElementById('rapidPublishFare').innerHTML = 0
+                        document.getElementById('rapidTagihanVendor').innerHTML = 0
+                        setTimeout(() => Swal.close(), 1500)
                     }
                     // replace existing tbody with filtered tbody
                     var existingTbody = document.getElementById("registrant-tbody");
@@ -256,11 +490,9 @@ export class Registrant extends Component {
                     newTbody.setAttribute("id", "registrant-tbody");
                     existingTbody.parentNode.replaceChild(newTbody, existingTbody)
 
-                    response.data.map(function(list_data){
-                        let badgeClass;
-                        let status;
+                    response.data.map(function(filtered_list_data){
 
-                        if(list_data.registrant_status==="0") {
+                        if(filtered_list_data.registrant_status==="0") {
                             badgeClass = "badge badge-danger";
                             status = "Belum";
                         } else {
@@ -268,83 +500,103 @@ export class Registrant extends Component {
                             status = "Sudah";
                         }
 
-                        // Re-create summary data based on the response
-                        if (list_data.id_product.includes('SWAB')) {
-                            newSumFareSwab += Number(list_data.publish_fare)
+                        if (filtered_list_data.id_product.includes('SWAB')) {
+                            newSumFareSwab += Number(filtered_list_data.publish_fare)
                             counterSwab++
-                        } else if(list_data.id_product.includes('RAPID')) {
-                            newSumFareRapid += Number(list_data.publish_fare)
+                        } else if(filtered_list_data.id_product.includes('RAPID')) {
+                            newSumFareRapid += Number(filtered_list_data.publish_fare)
                             counterRapid++
+                        }
+
+                        async function doReCreateSummary() {
+                            // Re-create summary data based on the response
+                            axios({
+                                method: 'get',
+                                url: '/getSwabPricelistByTotalRegistrant/' + counterSwab,
+                            }).then(function (response) {
+                                invoiceSwab = response.data;
+                                document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
+                                document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
+                            })
+
+                            axios({
+                                method: 'get',
+                                url: '/getRapidPricelistByTotalRegistrant/' + counterRapid,
+                            }).then(function (response) {
+                                invoiceRapid = response.data;
+                                document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
+                                document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
+                            })
                         }
 
                         async function doCreate_tr() {
                             var tr = document.createElement("tr");
-                            tr.setAttribute("id", "tr_"+list_data.id);
+                            tr.setAttribute("id", "tr_"+filtered_list_data.id);
                             var existingTbody = document.getElementById("registrant-tbody");
                             existingTbody.appendChild(tr);
                         }
 
                         async function doCreate_td_id() {
                             var td_id = document.createElement("td");
-                            var td_id_node = document.createTextNode(list_data.id);
+                            var td_id_node = document.createTextNode(filtered_list_data.id);
                             td_id.appendChild(td_id_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_id);
                         }
 
                         async function doCreate_td_test_date() {
                             var td_test_date = document.createElement("td");
-                            var test_date_node = document.createTextNode(list_data.test_date);
+                            var test_date_node = document.createTextNode(filtered_list_data.test_date);
                             td_test_date.appendChild(test_date_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_test_date);
                         }
 
                         async function doCreate_td_name() {
                             var td_name = document.createElement("td");
-                            var name_node = document.createTextNode(list_data.name);
+                            var name_node = document.createTextNode(filtered_list_data.name);
                             td_name.appendChild(name_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_name);
                         }
 
                         async function doCreate_td_email() {
                             var td_email = document.createElement("td");
-                            var email_node = document.createTextNode(list_data.email);
+                            var email_node = document.createTextNode(filtered_list_data.email);
                             td_email.appendChild(email_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_email);
                         }
 
                         async function doCreate_td_phone() {
                             var td_phone = document.createElement("td");
-                            var phone_node = document.createTextNode(list_data.phone);
+                            var phone_node = document.createTextNode(filtered_list_data.phone);
                             td_phone.appendChild(phone_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_phone);
                         }
 
                         async function doCreate_td_test_covid() {
                             var td_test_covid = document.createElement("td");
-                            var test_covid_node = document.createTextNode(list_data.test_covid);
+                            var test_covid_node = document.createTextNode(filtered_list_data.test_covid);
                             td_test_covid.appendChild(test_covid_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_test_covid);
                         }
 
                         async function doCreate_td_test_clinic() {
                             var td_test_clinic = document.createElement("td");
-                            var test_clinic_node = document.createTextNode(list_data.test_clinic);
+                            var test_clinic_node = document.createTextNode(filtered_list_data.test_clinic);
                             td_test_clinic.appendChild(test_clinic_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_test_clinic);
                         }
 
                         async function doCreate_td_publish_fare() {
                             var td_publish_fare = document.createElement("td");
-                            var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(list_data.publish_fare));
+                            var publish_fare_node = document.createTextNode(myhelper.convertToRupiah(filtered_list_data.publish_fare));
                             td_publish_fare.appendChild(publish_fare_node);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
                             tr.appendChild(td_publish_fare);
                         }
 
@@ -352,9 +604,9 @@ export class Registrant extends Component {
                             // make badge label
                             var label_status = document.createElement("label");
                             label_status.setAttribute("class", badgeClass);
-                            label_status.setAttribute("id", "status_"+list_data.id);
+                            label_status.setAttribute("id", "status_"+filtered_list_data.id);
                             label_status.onclick = function () {
-                                changeStatus(list_data.id)
+                                changeStatus(filtered_list_data.id)
                             };
 
                             // change cursor to pointer when hover
@@ -367,7 +619,7 @@ export class Registrant extends Component {
                             // make td status
                             var td_status = document.createElement("td");
                             td_status.appendChild(label_status);
-                            var tr = document.getElementById("tr_"+list_data.id);
+                            var tr = document.getElementById("tr_"+filtered_list_data.id);
 
                             tr.appendChild(td_status);
                         }
@@ -375,9 +627,9 @@ export class Registrant extends Component {
                         async function doCreate_td_vendor_name() {
                             if (localStorage.getItem("vendorID") === null) {
                                 var td_vendor_name = document.createElement("td");
-                                var vendor_name_node = document.createTextNode(list_data.vendor_name);
+                                var vendor_name_node = document.createTextNode(filtered_list_data.vendor_name);
                                 td_vendor_name.appendChild(vendor_name_node);
-                                var tr = document.getElementById("tr_" + list_data.id);
+                                var tr = document.getElementById("tr_" + filtered_list_data.id);
                                 tr.appendChild(td_vendor_name);
                             }
                         }
@@ -386,7 +638,7 @@ export class Registrant extends Component {
                             console.log(id)
                             Swal.fire({
                                 title: 'Apakah Anda yakin mengubah status?',
-                                // text: "helo "+list_data.id,
+                                // text: "helo "+filtered_list_data.id,
                                 icon: 'warning',
                                 showCancelButton: true,
                                 confirmButtonColor: '#3085d6',
@@ -410,11 +662,11 @@ export class Registrant extends Component {
                                                 text: 'Status berhasil diubah.'
                                             }).then(response => {
                                                 if (res.data.status===1 && res.data.new_status==="Belum") {
-                                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                    let existingStatusBanner = document.getElementById("status_"+filtered_list_data.id);
                                                     existingStatusBanner.className = "badge badge-danger";
                                                     existingStatusBanner.innerHTML = 'Belum';
                                                 } else if (res.data.status===1 && res.data.new_status==="Sudah") {
-                                                    let existingStatusBanner = document.getElementById("status_"+list_data.id);
+                                                    let existingStatusBanner = document.getElementById("status_"+filtered_list_data.id);
                                                     existingStatusBanner.className = "badge badge-success";
                                                     existingStatusBanner.innerHTML = 'Sudah';
                                                 } else {
@@ -447,6 +699,7 @@ export class Registrant extends Component {
                             await doCreate_td_publish_fare()
                             await doCreate_td_vendor_name()
                             await doCreate_td_status()
+                            await doReCreateSummary()
 
                             setTimeout(()=>Swal.close(), 1500)
                         }
@@ -454,27 +707,7 @@ export class Registrant extends Component {
                         return populateFilteredData()
                     });
 
-                })
-                .then(function doReCreateSummary() {
-                    axios({
-                        method: 'get',
-                        url: '/getSwabPricelistByTotalRegistrant/'+counterSwab,
-                    }).then(function(response){
-                        invoiceSwab = response.data;
-                        document.getElementById('swabPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareSwab)
-                        document.getElementById('swabTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceSwab)
-                    })
-
-                    axios({
-                        method: 'get',
-                        url: '/getRapidPricelistByTotalRegistrant/'+counterRapid,
-                    }).then(function(response){
-                        invoiceRapid = response.data;
-                        document.getElementById('rapidPublishFare').innerHTML = myhelper.convertToRupiah(newSumFareRapid)
-                        document.getElementById('rapidTagihanVendor').innerHTML = myhelper.convertToRupiah(invoiceRapid)
-                    })
-                })
-                .catch(function (error) {
+                }).catch(function (error) {
                     console.log(error);
                 })
         )
