@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {Link} from "react-router-dom";
-import axios from "../config/API";
+import axios from "../config/Axios";
 
 export class Product extends Component {
     constructor(props) {

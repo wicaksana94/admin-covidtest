@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import axios from "../config/API";
+import axios from "../config/Axios";
 
 export class Dashboard extends Component {
   constructor(props) {

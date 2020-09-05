@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import axios from "../config/API";
+import axios from "../config/Axios";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button'
 import * as Swal from "sweetalert2";

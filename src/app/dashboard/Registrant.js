@@ -1,8 +1,24 @@
 import React, { Component } from 'react'
-import axios from '../config/API'
+import axios from '../config/Axios'
 import Swal from 'sweetalert2'
 import myhelper from '../helper/myhelper'
 import Select from 'react-select'
+import openSocket from 'socket.io-client'
+import {URLSocket} from "../config/API";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const socket = openSocket(URLSocket)
+
+const notify = (messageContent) => toast(<span onClick={()=>window.location.reload()}>{messageContent}</span>, {
+    position: "bottom-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    type: "info"
+});
 
 export class Registrant extends Component {
     constructor(props) {

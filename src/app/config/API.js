@@ -1,31 +1,8 @@
-import axios from 'axios'
+// URL HTTP Request untuk data-data vendor
+export let URLVendor = "http://localhost:2123/vendor/";
 
-// Axios HTTP Request untuk data-data vendor
-let APIVendor = "http://localhost:2123/vendor/";
+// URL HTTP Request untuk data-data admin
+export let URLAdmin = "http://localhost:2123/";
 
-// Axios HTTP Request untuk data-data admin
-let APIAdmin = "http://localhost:2123";
-
-// Axios HTTP Request untuk init login
-axios.create({
-    baseURL:"http://localhost:2123"
-})
-
-axios.interceptors.request.use(
-    config => {
-        const idVendor = localStorage.getItem("vendorID");
-
-        // Sistem cek jika memiliki vendorID maka diidentifikasi pengguna vendor dan akan menggunakan APIVendor
-        if (idVendor) {
-            config.baseURL = APIVendor+idVendor;
-        } else {
-            config.baseURL = APIAdmin;
-        }
-
-        return config;
-    },
-
-    error => Promise.reject(error)
-);
-
-export default axios
+// URL Socket
+export let URLSocket = "http://localhost:8000";
