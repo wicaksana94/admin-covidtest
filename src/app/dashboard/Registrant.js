@@ -927,7 +927,8 @@ export class Registrant extends Component {
                                 </form>
                                 <div className="summaryOfRegistrantData my-5 p-3 text-center border rounded border-primary">
                                     <h4 className="mb-3"><b><u>Summary</u></b></h4>
-                                    <table className="table">
+                                    <div className="table-responsive">
+                                        <table className="table">
                                         <thead>
                                         <tr>
                                             <th scope="col">Jenis</th>
@@ -956,6 +957,7 @@ export class Registrant extends Component {
                                         </tr>
                                         </tbody>
                                     </table>
+                                    </div>
                                 </div>
                                 <div className="table-responsive">
                                     <table className="table">
