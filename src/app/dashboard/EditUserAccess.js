@@ -60,12 +60,16 @@ class EditUserAccess extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deleteUserAccess/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data akses telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/user_access")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data akses telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/user_access")
+                            })
+                        }
                     })
             }
         })
@@ -84,7 +88,7 @@ class EditUserAccess extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===204){
                     Swal.fire(
                         'Data tersimpan',
                         'Data pengguna telah tersimpan',

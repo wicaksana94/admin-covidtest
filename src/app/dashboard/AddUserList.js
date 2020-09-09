@@ -36,7 +36,7 @@ class AddUserList extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===201){
                     Swal.fire(
                         'Data tersimpan',
                         'Data pengguna telah tersimpan',

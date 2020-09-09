@@ -36,7 +36,6 @@ class AddUserAccess extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const data = new FormData(event.target);
-        // console.log(data)
 
         axios({
             method: 'post',
@@ -44,7 +43,7 @@ class AddUserAccess extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===201){
                     Swal.fire(
                         'Data tersimpan',
                         'Data akses telah tersimpan',

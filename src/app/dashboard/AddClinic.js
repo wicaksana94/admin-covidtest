@@ -55,7 +55,7 @@ class AddClinic extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===201){
                     Swal.fire(
                         'Data tersimpan',
                         'Data klinik telah tersimpan',

@@ -95,12 +95,16 @@ class EditPricelist extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deletePricelist/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data harga telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/pricelist")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data harga telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/pricelist")
+                            })
+                        }
                     })
             }
         })
@@ -143,7 +147,7 @@ class EditPricelist extends Component {
                 data: data,
             })
                 .then(function (response) {
-                    if (response.data === 1) {
+                    if (response.data.code===204) {
                         Swal.fire(
                             'Data tersimpan',
                             'Data harga telah tersimpan',

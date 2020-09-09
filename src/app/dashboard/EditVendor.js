@@ -42,12 +42,16 @@ class EditVendor extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deleteVendor/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data vandor telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/vendor")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data vandor telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/vendor")
+                            })
+                        }
                     })
             }
         })
@@ -67,7 +71,7 @@ class EditVendor extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===204){
                     Swal.fire(
                         'Data tersimpan',
                         'Data vendor telah tersimpan',

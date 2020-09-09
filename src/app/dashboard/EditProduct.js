@@ -77,12 +77,16 @@ class EditProduct extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deleteProduct/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data produk telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/product")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data produk telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/product")
+                            })
+                        }
                     })
             }
         })

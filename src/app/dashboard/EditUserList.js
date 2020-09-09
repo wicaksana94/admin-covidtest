@@ -54,12 +54,16 @@ class EditUser extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deleteUser/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data pengguna telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/user_list")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data pengguna telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/user_list")
+                            })
+                        }
                     })
             }
         })
@@ -78,7 +82,7 @@ class EditUser extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===204){
                     Swal.fire(
                         'Data tersimpan',
                         'Data pengguna telah tersimpan',

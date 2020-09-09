@@ -81,12 +81,16 @@ class EditClinic extends Component {
         }).then((result) => {
             if (result.value) {
                 axios.delete(`/deleteClinic/${this.state.id_edit}`)
-                    .then(res => {
-                        Swal.fire(
-                            'Berhasil Dihapus',
-                            'Data klinik telah berhasil dihapus.',
-                            'success'
-                        ).then(result => {window.location.replace("/clinic")})
+                    .then(function (response) {
+                        if (response.data.code===200) {
+                            Swal.fire(
+                                'Berhasil Dihapus',
+                                'Data klinik telah berhasil dihapus.',
+                                'success'
+                            ).then(result => {
+                                window.location.replace("/clinic")
+                            })
+                        }
                     })
             }
         })
@@ -106,7 +110,7 @@ class EditClinic extends Component {
             data: data,
         })
             .then(function (response) {
-                if (response.data===1){
+                if (response.data.code===204){
                     Swal.fire(
                         'Data tersimpan',
                         'Data klinik telah tersimpan',
